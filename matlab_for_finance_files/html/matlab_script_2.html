@@ -1,0 +1,1679 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Working with financial data: regression analysis and curve fitting</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2013-08-25"><meta name="DC.source" content="matlab_script_2.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+
+  </style></head><body><div class="content"><h1>Working with financial data: regression analysis and curve fitting</h1><!--introduction--><p>Christian Groll</p><p>Seminar f&#65533;r Finanz&#65533;konometrie, Ludwig-Maximilians-Universit&#65533;t M&#65533;nchen.</p><p>All rights reserved.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Required functions</a></li><li><a href="#3">Load historic DAX prices</a></li><li><a href="#12">Plotting financial data</a></li><li><a href="#15">Logical indexing</a></li><li><a href="#26">Regression analysis</a></li><li><a href="#37">CAPM</a></li><li><a href="#40">Stock price prediction based on curve fitting</a></li></ul></div><p>This is the second part of the MATLAB course. Here we will show how to download real data and how this data can be further processed.</p><p>Then, as first application, we will examine whether some theoretical relationships between risk and return can be found in german stock data. This analysis will be based on regression models.</p><p>Subsequently, we will try to find deterministic trends in stock market data based on curve fitting approaches. Only the next script will show common approaches to modelling of stock market returns as stochastic variables.</p><h2>Required functions<a name="2"></a></h2><pre class="language-matlab">hist_stock_data
+processData
+LPPL
+LPPLfit
+constrFunc
+LPPLinteractively
+</pre><h2>Load historic DAX prices<a name="3"></a></h2><p>The following code provides an example of the usage of the function hist_stock_data, which is able to download historic stock prices and trading volumes based on the data provided by Yahoo!finance. In order to make the data comply with our requirements, some additional treatments are needed first.</p><pre class="codeinput"><span class="comment">% specify ticker symbol as string variable</span>
+tickSym = <span class="string">'^GDAXI'</span>;     <span class="comment">% specify stock data of interest</span>
+
+<span class="comment">% specify beginning and ending as string variables</span>
+dateBeg = <span class="string">'01011990'</span>;   <span class="comment">%  day, month, year: ddmmyyyy</span>
+dateEnd = <span class="string">'01072013'</span>;
+</pre><p>Alternatively, dates also can be determined dynamically, with regard to today. Since the MATLAB command "today" measures time on a numeric scale, the value displayed is a number.</p><pre class="codeinput"><span class="comment">% display date of today</span>
+fprintf([<span class="string">'\nToday is '</span> num2str(today) <span class="string">'.\n'</span>])
+    <span class="comment">% Note: fprintf is able to display a string to the command</span>
+    <span class="comment">% window, without having to assign it to a variable or MATLAB's</span>
+    <span class="comment">% temporary placeholder "ans" (short for "answer") first. In</span>
+    <span class="comment">% order to get the input string, in this case we first have to</span>
+    <span class="comment">% concatenate smaller strings into one large string.</span>
+</pre><pre class="codeoutput">
+Today is 735471.
+</pre><p>In order to make the numeric data value more meaningful, we can transform it with the function datestr() into a date expression. As a string, this can be directly assigned to the variable declaring the end of the data period requested.</p><pre class="codeinput"><span class="comment">% dynamic assignment to end of period</span>
+dateEnd = datestr(today, <span class="string">'ddmmyyyy'</span>)  <span class="comment">% today as last date</span>
+</pre><pre class="codeoutput">
+dateEnd =
+
+25082013
+
+</pre><p>However, instead of using "today", you also can use the command "date", which returns the date as string right away.</p><pre class="codeinput">fprintf([<span class="string">'\nToday is '</span> date <span class="string">'.\n'</span>])
+</pre><pre class="codeoutput">
+Today is 25-Aug-2013.
+</pre><p>In order to download data from Yahoo!finance, we make use of the function hist_stock_data. This function can be found at the MATLAB File Exchange at <a href="http://www.mathworks.com/matlabcentral/fileexchange/">http://www.mathworks.com/matlabcentral/fileexchange/</a>. The File Exchange is a place where users can find and share content related to MATLAB development.</p><pre class="codeinput"><span class="comment">% load data</span>
+daxCrude = hist_stock_data(dateBeg, dateEnd, tickSym);
+</pre><p>The function hist_stock_data returns a structure variable. A more detailed insight into the formatting of the output can be achieved with queries.</p><pre class="codeinput">daxCrude
+exampleDateEntries = daxCrude.Date(1:4)
+</pre><pre class="codeoutput">
+daxCrude = 
+
+      Ticker: '^GDAXI'
+        Date: {5761x1 cell}
+        Open: [5761x1 double]
+        High: [5761x1 double]
+         Low: [5761x1 double]
+       Close: [5761x1 double]
+      Volume: [5761x1 double]
+    AdjClose: [5761x1 double]
+
+
+exampleDateEntries = 
+
+    '2013-08-23'
+    '2013-08-22'
+    '2013-08-21'
+    '2013-08-20'
+
+</pre><p>As the second query shows, historic prices are ordered with latest observations first. This configuration is disadvantageous for further work, since plotting of the prices would show the latest observations to the left. Moreover, instead of storing the dates as a cell array of string variables, we will achieve more flexibility if we store dates as serial dates, which is the same conversion we already encountered with the today command. In this numeric scale, each date is assigned to a uniquely specified number. As anchor point of this system, January 1st, 0000, is assigned to the value one.</p><pre class="codeinput">fprintf([<span class="string">'Number 1 is equal to the date '</span> datestr(1) <span class="string">'.\n'</span>])
+</pre><pre class="codeoutput">Number 1 is equal to the date 01-Jan-0000.
+</pre><p>In order to switch between dates given as strings and numeric serial dates the functions datestr and datenum can be used. Now we want to convert the date strings to serial dates.</p><pre class="codeinput">serialDates = datenum(daxCrude.Date, <span class="string">'yyyy-mm-dd'</span>);
+<span class="comment">% second argument specifies input format of string dates</span>
+</pre><p>In accordance with common convention prices and dates shall be arranged in increasing order, with most recent data at the end. Instead of manually encoding a for-loop, the MATLAB function flipud can be used to flip both matrices upside down. The results will be assigned to fields of a new structure variable called dax.</p><pre class="codeinput"><span class="comment">% flip most recent entries to the end</span>
+dax.dates = flipud(serialDates);    <span class="comment">% initializes structure dax</span>
+dax.prices = flipud(daxCrude.Close);
+</pre><h2>Plotting financial data<a name="12"></a></h2><p>When plotting financial data, we usually want the x-axis to be denoted in dates instead of numeric values. This can be done with help of the command "datetick", which interprets values of the respective axis as serial dates, and converts the labels of the individual ticks into meaningful date strings.</p><p>Further adjustments to graphical representations can be achieved by manual configuration of figure sizes, as well as additional graphics in one figure window. Both concepts are applied in the following illustration.</p><pre class="codeinput">figure(<span class="string">'position'</span>,[50 50 1200 600]) <span class="comment">% create gray window, left</span>
+                                    <span class="comment">% corner at latitude 50,</span>
+                                    <span class="comment">% height 50, with width 1200</span>
+                                    <span class="comment">% and height 600</span>
+
+subplot(1, 2, 1);     <span class="comment">% Include two different white windows within</span>
+                    <span class="comment">% the gray figure window. 1,2 denotes</span>
+                    <span class="comment">% arrangement (one row, two columns of white</span>
+                    <span class="comment">% windows), while the last number (1) denotes</span>
+                    <span class="comment">% the currently used window.</span>
+
+<span class="comment">% use plot command without further adjustments</span>
+plot(dax.prices) <span class="comment">% since no x-values are specified, MATLAB</span>
+                <span class="comment">% automatically numbers observations from 1 to</span>
+                <span class="comment">% numel(dax.dates).</span>
+
+subplot(1, 2, 2);
+plot(dax.dates, dax.prices)
+datetick <span class="string">'x'</span>    <span class="comment">% exact format of date labels can be chosen with</span>
+                <span class="comment">% additional input, e.g. try datetick('x', 29) and</span>
+                <span class="comment">% datetick('x', 10)</span>
+xlabel(<span class="string">'dates'</span>)
+ylabel(<span class="string">'prices'</span>)
+title(<span class="string">'historic DAX values'</span>)
+
+<span class="comment">% crop x-axis to relevant size only</span>
+set(gca, <span class="string">'xLim'</span>,[dax.dates(1) dax.dates(end)])
+</pre><img vspace="5" hspace="5" src="matlab_script_2_01.png" alt=""> <p>As can be seen at the command line used to crop the x-axis, though MATLAB renders the x-axis labels to date strings, it still needs references denoted in numeric values. That is, it is not possible to directly tell MATLAB to restrict the axis to 01.01.2000 to 31.12.2002 for example. Indexing with date strings is generally not possible. Hence, simple graphical modifications may become quite cumbersome. As first example, the maximum value during the period shall be highlighted with a red point. The general way to do this will be to first find the entry with the highest point in the price vector, which will be given as index value relative to the price matrix. Then, the index has to be converted into the respective index of the serial dates vector. In most cases, lengths of price and serial dates vectors will coincide, so that nothing needs to be done in this step. At last, this index is used to get the value of the serial dates vector at the respective entry.</p><h2>Logical indexing<a name="15"></a></h2><p>In order to find certain specified values in a given matrix, MATLAB usually makes use of the concept of logical indexing. In logical notation, a value of zero represents "no", while a value of "1" has to be interpreted as "yes". Hence, for example, when checking whether the entries of a matrix fulfill a given condition, MATLAB checks the condition on each entry, and returns a logical matrix of same size filled with zeros and ones.</p><pre class="codeinput"><span class="comment">% init matrix</span>
+matr = [1 2 3 4 5 6]
+
+<span class="comment">% check if entries are greater than 3</span>
+greaterThan3 = matr&gt;3
+
+<span class="comment">% matrix greaterThan3 is logical variable</span>
+logicalCheck = islogical(greaterThan3)
+</pre><pre class="codeoutput">
+matr =
+
+     1     2     3     4     5     6
+
+
+greaterThan3 =
+
+     0     0     0     1     1     1
+
+
+logicalCheck =
+
+     1
+
+</pre><p>Such logical matrices created from logical or relational operations can be used to extract values of a given matrix. However, these extracted values are always returned arranged in vectors, so that information about the position in the original matrix is lost.</p><pre class="codeinput"><span class="comment">% get values greater than 3</span>
+valuesGreater3 = matr(greaterThan3)
+</pre><pre class="codeoutput">
+valuesGreater3 =
+
+     4     5     6
+
+</pre><p>In order to compare numerical values, MATLAB uses relational operators.</p><pre class="codeinput"><span class="comment">% equal to</span>
+equalThree = (matr == 3)   <span class="comment">% since single equal signs are already</span>
+                        <span class="comment">% used for assignments, MATLAB notation</span>
+                        <span class="comment">% requires two equality signs to check</span>
+                        <span class="comment">% for equality</span>
+
+<span class="comment">% less or equal</span>
+lessEqualThree = (matr &lt;= 3)   <span class="comment">% greater or equal: &gt;=</span>
+
+<span class="comment">% not equal to</span>
+notEqualThree = (matr ~= 3)
+</pre><pre class="codeoutput">
+equalThree =
+
+     0     0     1     0     0     0
+
+
+lessEqualThree =
+
+     1     1     1     0     0     0
+
+
+notEqualThree =
+
+     1     1     0     1     1     1
+
+</pre><p>Matrix manipulation also can be done based on logical indexing. For example, set each value of matr below three to zero.</p><pre class="codeinput"><span class="comment">% new matrix given by</span>
+matr(matr&lt;3)=0
+
+<span class="comment">% multiply each entry greater than 4 with 10</span>
+matr(matr&gt;4) = 4*matr(matr&gt;4)
+</pre><pre class="codeoutput">
+matr =
+
+     0     0     3     4     5     6
+
+
+matr =
+
+     0     0     3     4    20    24
+
+</pre><p>In order to check more than one condition, MATLAB also includes operators to combine logical matrices.</p><pre class="codeinput"><span class="comment">% create two random logicals</span>
+log1 = (rand(3)&gt;0.5)
+log2 = (rand(3)&gt;0.5)
+
+<span class="comment">% elementwise AND: both logicals have to be 1</span>
+AND = (log1 &amp; log2)
+
+<span class="comment">% elementwise OR: at least one of both logicals has to be 1</span>
+OR = (log1 | log2)
+
+<span class="comment">% NONE: elementwise AND inverted with tilde command</span>
+NONE = ~AND
+</pre><pre class="codeoutput">
+log1 =
+
+     1     1     1
+     1     0     1
+     1     0     1
+
+
+log2 =
+
+     1     0     0
+     1     1     1
+     1     1     1
+
+
+AND =
+
+     1     0     0
+     1     0     1
+     1     0     1
+
+
+OR =
+
+     1     1     1
+     1     1     1
+     1     1     1
+
+
+NONE =
+
+     0     1     1
+     0     1     0
+     0     1     0
+
+</pre><p>In order to not lose information about the position of entries within a matrix, you can use the find() function, which returns the indices of the first k entries which fulfill a certain condition. However, note that indices are given in single index notation.</p><pre class="codeinput">matr
+greater20 = (matr&gt;=20) <span class="comment">% shows logical matrix: indices could be read</span>
+                    <span class="comment">% off manually</span>
+find(matr&gt;=20)     <span class="comment">% automatically returns all indices with logical</span>
+                <span class="comment">% value one</span>
+find(matr&gt;=20, 1)   <span class="comment">% returns only first index with logical value one</span>
+</pre><pre class="codeoutput">
+matr =
+
+     0     0     3     4    20    24
+
+
+greater20 =
+
+     0     0     0     0     1     1
+
+
+ans =
+
+     5     6
+
+
+ans =
+
+     5
+
+</pre><p>Returning to the original intention to highlight the maximum price value, this gives</p><pre class="codeinput"><span class="comment">% find index of maximum price</span>
+ind = find(dax.prices == max(dax.prices), 1);
+
+<span class="comment">% find associated serial date</span>
+maxDate = dax.dates(ind);
+
+<span class="comment">% include in subplot(1, 2, 2)</span>
+subplot(1, 2, 2)
+hold <span class="string">on</span>;    <span class="comment">% allows to add elements, without deleting previous</span>
+            <span class="comment">% graphic</span>
+
+plot(maxDate, max(dax.prices), <span class="string">'.r'</span>, <span class="string">'MarkerSize'</span>, 18)
+shg         <span class="comment">% show current graphic: pops up figure window again</span>
+hold <span class="string">off</span>;   <span class="comment">% next graphic will not be included again</span>
+</pre><img vspace="5" hspace="5" src="matlab_script_2_02.png" alt=""> <p>Despite of going this quite cumbersome programmatic way, MATLAB also allows interactive request in figures. This way, press the "Data Cursor" button in the figures toolbar, select the global maximum on your own by clicking on it, then right click on datatip, and "Export Cursor Data to Workspace". Set name to maxPrice. This exports information about the maximum stock price into a structure called maxPrice.</p><p>Instead of absolute prices, investors usually are more interested in returns of the dax, where absolute gains / losses are put in relation to the capital invested. Since each return needs one starting value and one ending value, the length of the time series will decrease by one. Hence, also the date vector has to be adapted.</p><pre class="codeinput"><span class="comment">% transform prices to discrete percentage returns</span>
+dax.disRet = 100*(dax.prices(2:end) - dax.prices(1:end-1))./<span class="keyword">...</span>
+    dax.prices(1:end-1);
+
+<span class="comment">% date vector for returns</span>
+dax.retDates = dax.dates(2:end);
+
+<span class="comment">% compare prices and returns in figure</span>
+close   <span class="comment">% closes previously used figure window</span>
+
+<span class="comment">% plot prices</span>
+ax(1) = subplot(2, 1, 1); <span class="comment">% storage of axes handle at ax(1) allows</span>
+                        <span class="comment">% accessing it later</span>
+plot(dax.retDates, dax.prices(2:end))
+datetick <span class="string">'x'</span>
+set(gca, <span class="string">'xLim'</span>,[dax.retDates(1) dax.retDates(end)])
+title(<span class="string">'historic DAX prices'</span>)
+xlabel(<span class="string">'dates'</span>)
+ylabel(<span class="string">'prices'</span>)
+
+<span class="comment">% plot returns</span>
+ax(2) = subplot(2, 1, 2);
+plot(dax.retDates, dax.disRet)
+datetick <span class="string">'x'</span>
+set(gca, <span class="string">'xLim'</span>,[dax.retDates(1) dax.retDates(end)])
+title(<span class="string">'historic DAX returns'</span>)
+xlabel(<span class="string">'dates'</span>)
+ylabel(<span class="string">'returns'</span>)
+
+<span class="comment">% connect axes of both graphs: zooming in applies to both plots</span>
+linkaxes([ax(1) ax(2)], <span class="string">'x'</span>)
+</pre><img vspace="5" hspace="5" src="matlab_script_2_03.png" alt=""> <p>As can be seen, the return series exhibits phases of different volatilities. While most of the time rather small returns occur, there are also times were both positive and negative returns are persistently larger. This observation is usually refered to as volatility clusters, and is understood as a stylized fact about stock market data. However, when focussing on longer investment horizons, we usually neglect the information about the exact times of occurrence of each return, and take a look at the distribution of returns only. This is done with a histogram.</p><pre class="codeinput">close   <span class="comment">% closes previously used window</span>
+hist(dax.disRet, 30)     <span class="comment">% sample size justifies 30 bins</span>
+</pre><img vspace="5" hspace="5" src="matlab_script_2_04.png" alt=""> <p>In this figure, we want to include a line indicating the mean return over the observed period, as well as two lines indicating regions with more than two standard deviations away from the mean.</p><pre class="codeinput"><span class="comment">% calculate mean return</span>
+meanRet = sum(dax.disRet)/numel(dax.disRet);
+
+<span class="comment">% calculate standard deviation</span>
+stdDev = sum((dax.disRet-meanRet).^2)/(numel(dax.disRet)-1);
+stdDev = sqrt(stdDev);
+
+<span class="comment">% check results with existing MATLAB functions</span>
+deviations = [(meanRet - mean(dax.disRet))<span class="keyword">...</span>
+    (stdDev-sqrt(var(dax.disRet)))]
+
+<span class="comment">% include in graphic</span>
+yLimits = get(gca, <span class="string">'yLim'</span>);
+line(meanRet*[1 1], yLimits, <span class="string">'Color'</span>, <span class="string">'r'</span>)
+line((meanRet+2*stdDev)*[1 1], yLimits, <span class="string">'Color'</span>, <span class="string">'r'</span>)
+line((meanRet-2*stdDev)*[1 1], yLimits, <span class="string">'Color'</span>, <span class="string">'r'</span>)
+text(meanRet+2*stdDev, yLimits(end)/2, <span class="string">'2 standard deviations'</span>)
+</pre><pre class="codeoutput">
+deviations =
+
+     0     0
+
+</pre><img vspace="5" hspace="5" src="matlab_script_2_05.png" alt=""> <h2>Regression analysis<a name="26"></a></h2><p>One of the most important models also in econometrics is the linear model. Hence, the following lines show the implementation and estimation of a linear regression model in MATLAB. First, we sample from a specified linear model.</p><pre class="codeinput"><span class="comment">% init params</span>
+nSim = 1000;       <span class="comment">% sample size</span>
+muX = 12;       <span class="comment">% params explanatory variable</span>
+sigmaX = 2.3;
+coeff = 0.8;    <span class="comment">% regression coefficient</span>
+intcept = 4.3;  <span class="comment">% regression intercept</span>
+
+<span class="comment">% simulate explanatory variable</span>
+xMatr = normrnd(muX, sigmaX, nSim, 1);
+
+<span class="comment">% simulate standard normally distributed innovations</span>
+epsilon = randn(nSim, 1);
+
+<span class="comment">% calculate Y according to linear model</span>
+yMatr = intcept + coeff*xMatr + epsilon;    <span class="comment">% do not use for loop</span>
+</pre><p>Now we want to estimate the parameters of the model based on the values simulated.</p><pre class="codeinput"><span class="comment">% because of intercept, expand matrix of explanatory variables</span>
+xMatr = [ones(nSim, 1) xMatr];
+
+<span class="comment">% OLS estimation, naive way</span>
+paramsHat = inv(xMatr'*xMatr)*xMatr'*yMatr;
+<span class="comment">% usual estimation formula</span>
+
+<span class="comment">% avoiding single matrix inversion as mlint warning suggests</span>
+paramsHat2 = (xMatr'*xMatr)\(xMatr'*yMatr);      <span class="comment">% faster way</span>
+paramsHat3 = xMatr\yMatr;                <span class="comment">% best way</span>
+
+<span class="comment">% calculate regression line</span>
+xLimits = [floor(min(xMatr(:, 2))) ceil(max(xMatr(:, 2)))];
+                                 <span class="comment">% use nearest</span>
+                                 <span class="comment">% neighbouring integer numbers</span>
+grid = xLimits(1):0.1:xLimits(2);
+vals = paramsHat(1)+paramsHat(2)*grid;
+
+<span class="comment">% plotting data</span>
+close
+scatter(xMatr(:, 2), yMatr, <span class="string">'.'</span>);   <span class="comment">% used for visualizing points</span>
+                                    <span class="comment">% cloud</span>
+
+<span class="comment">% include regression line</span>
+hold <span class="string">on</span>;    <span class="comment">% plot in same figure</span>
+plot(grid, vals, <span class="string">'LineWidth'</span>, 2, <span class="string">'Color'</span>, <span class="string">'r'</span>)   <span class="comment">% larger line width</span>
+set(gca, <span class="string">'xLim'</span>, xLimits)
+xlabel(<span class="string">'regressor variable'</span>)
+ylabel(<span class="string">'dependent variable'</span>)
+title([<span class="string">'Linear model: estimated beta is '</span> num2str(paramsHat(2))])
+</pre><img vspace="5" hspace="5" src="matlab_script_2_06.png" alt=""> <p>Because of the risk-aversion of investors, theoretical models often conclude that riskier assets should in general coincide with higher expected returns, since investors demand higher compensation for the risk involved. As a first application of the linear model, we want to investigate whether this positive relationship can be verified for German stock data. Therefore, we will download historical data of all 30 components of the German stock market index DAX, estimate their mean return and return standard deviation, and regress the mean returns on the standard deviations. Note that standard deviation is only one way to measure inherent risk, and one common criticism is that the symmetrical nature of standard deviation measures positive deviations the same way as negative ones.</p><pre class="codeinput"><span class="comment">% specify start and end point of investigation period</span>
+dateBeg = <span class="string">'01011990'</span>;
+dateEnd = <span class="string">'01072011'</span>;
+
+<span class="comment">% download data of all components: dax_comp is structure array</span>
+daxComp = hist_stock_data(dateBeg, dateEnd, <span class="string">'ADS.DE'</span>, <span class="string">'ALV.DE'</span>,<span class="keyword">...</span>
+    <span class="string">'BAS.DE'</span>, <span class="string">'BAYN.DE'</span>, <span class="string">'BEI.DE'</span>, <span class="string">'BMW.DE'</span>, <span class="string">'CBK.DE'</span>, <span class="string">'DAI.DE'</span>, <span class="keyword">...</span>
+    <span class="string">'DB1.DE'</span>,<span class="keyword">...</span>
+    <span class="string">'DBK.DE'</span>, <span class="string">'DPW.DE'</span>, <span class="string">'DTE.DE'</span>, <span class="string">'EOAN.DE'</span>, <span class="string">'FME.DE'</span>, <span class="string">'FRE.DE'</span>,<span class="keyword">...</span>
+    <span class="string">'HEI.DE'</span>, <span class="string">'HEN3.DE'</span>, <span class="string">'IFX.DE'</span>, <span class="string">'LHA.DE'</span>, <span class="string">'LIN.DE'</span>, <span class="string">'MAN.DE'</span>,<span class="keyword">...</span>
+    <span class="string">'MEO.DE'</span>, <span class="string">'MRK.DE'</span>, <span class="string">'MUV2.DE'</span>, <span class="string">'RWE.DE'</span>, <span class="string">'SAP'</span>, <span class="string">'SDF.DE'</span>,<span class="keyword">...</span>
+    <span class="string">'SIE.DE'</span>, <span class="string">'TKA.DE'</span>, <span class="string">'VOW3.DE'</span>);
+</pre><p>When downloading data of so many different stocks at Yahoo!finance, we usually will observe different sample sizes of the individual time series. This also has to be taken into account when stocks of different countries are involved, since deviating holidays will lead to different sample sizes. Let's first investigate the sample sizes.</p><pre class="codeinput"><span class="comment">% preallocate storage variables for first dates and samples sizes</span>
+firstDates = zeros(size(daxComp));
+sampleSizes = zeros(size(daxComp));
+
+<span class="comment">% extract first date and sample size of each component</span>
+<span class="keyword">for</span> ii=1:numel(firstDates)
+    firstDates(ii) = datenum(daxComp(ii).Date(end));
+    sampleSizes(ii) = numel(daxComp(ii).Date);
+<span class="keyword">end</span>
+
+<span class="comment">% display first dates as strings to command window</span>
+fprintf(<span class="string">'\nThe respective first observations are given by:\n'</span>)
+
+<span class="keyword">for</span> ii=4:4:numel(daxComp)
+    <span class="comment">% display four dates per row</span>
+    fprintf([datestr(firstDates(ii-3), <span class="string">'dd-mmm-yyyy'</span>) <span class="string">', '</span><span class="keyword">...</span>
+        datestr(firstDates(ii-2), <span class="string">'dd-mmm-yyyy'</span>) <span class="string">', '</span> <span class="keyword">...</span>
+        datestr(firstDates(ii-1), <span class="string">'dd-mmm-yyyy'</span>) <span class="string">', '</span> <span class="keyword">...</span>
+        datestr(firstDates(ii), <span class="string">'dd-mmm-yyyy'</span>) <span class="string">'\n'</span>])
+<span class="keyword">end</span>
+
+<span class="comment">% if numel(daxComp) is not divisible by 4</span>
+remaining = mod(numel(daxComp), 4);
+nMultiplesOfFour = (numel(daxComp) - remaining) / 4;
+nAlreadyShown = nMultiplesOfFour * 4;
+<span class="keyword">for</span> ii=1:remaining
+    <span class="keyword">if</span>(ii==1)
+        str = datestr(firstDates(ii + nAlreadyShown), <span class="string">'dd-mmm-yyyy'</span>);
+    <span class="keyword">else</span>
+        str = [str <span class="string">', '</span> datestr(firstDates(ii + nAlreadyShown),<span class="keyword">...</span>
+                                <span class="string">'dd-mmm-yyyy'</span>)];
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+fprintf(str)
+
+<span class="comment">% get ticker symbol of component with minimum sample size</span>
+tSym = daxComp(find(sampleSizes == min(sampleSizes))).Ticker;
+
+<span class="comment">% display with sample sizes</span>
+fprintf([<span class="string">'\nThe minimum sample size occurs for '</span> tSym <span class="keyword">...</span>
+    <span class="string">'.\nThere are only %2i observations.\n'</span>], min(sampleSizes))
+</pre><pre class="codeoutput">
+The respective first observations are given by:
+03-Jan-2000, 03-Jan-2000, 03-Jan-2000, 03-Jan-2000
+03-Jan-2000, 03-Jan-2000, 03-Jan-2000, 03-Jan-2000
+05-Feb-2001, 03-Jan-2000, 20-Nov-2000, 03-Jan-2000
+03-Jan-2000, 03-Jan-2000, 03-Jan-2000, 03-Jan-2000
+01-Jan-2003, 14-Mar-2000, 03-Jan-2000, 03-Jan-2000
+03-Jan-2000, 03-Jan-2000, 03-Jan-2000, 03-Jan-2000
+28-Nov-2000, 03-Aug-1998, 03-Jan-2000, 03-Jan-2000
+03-Jan-2000, 28-Dec-2007
+The minimum sample size occurs for VOW3.DE.
+There are only 656 observations.
+</pre><p>This index refers to VOW3.DE, standing for Volkswagen. Since all other sample sizes are large enough, we simply exclude Volkswagen from the analysis.</p><pre class="codeinput"><span class="comment">% delete Volkswagen from data</span>
+indexOfMinimumSampleSize = find(sampleSizes == min(sampleSizes));
+daxComp(indexOfMinimumSampleSize) = [];
+firstDates(indexOfMinimumSampleSize) = [];
+sampleSizes(indexOfMinimumSampleSize) = [];
+
+<span class="comment">% get new minimum</span>
+fprintf([<span class="string">'\nThe new minimum now is %2i, which seems to be\n'</span><span class="keyword">...</span>
+    <span class="string">'sufficient for reasonable analysis.\n'</span>], min(sampleSizes))
+</pre><pre class="codeoutput">
+The new minimum now is 2199, which seems to be
+sufficient for reasonable analysis.
+</pre><p>Exercise:</p><p>Since the availability of data for individual DAX components changes from time to time, it is not guaranteed, that there will always be only one company with insufficient data. A better way hence would be defining a certain minimal sample size as threshold. Then, all companies with less data should be removed automatically.</p><p>In order to eliminate data points with missing values and to adjust the data to the usual convention with chronologically increasing points in time, we make use of the function processData(). Also, string dates are converted to serial dates, and the already used data of the German stock index is included.</p><pre class="codeinput">tic
+[daxDates daxPrices] = processData([daxComp daxCrude]);
+toc
+</pre><pre class="codeoutput">Elapsed time is 0.829616 seconds.
+</pre><p>The following two queries give an impression about the nature of the output of the function.</p><pre class="codeinput"><span class="comment">% both output are numeric variables</span>
+numericVars = [isnumeric(daxDates) isnumeric(daxPrices)]
+
+<span class="comment">% get dimensions</span>
+size(daxDates)
+size(daxPrices)
+</pre><pre class="codeoutput">
+numericVars =
+
+     1     1
+
+
+ans =
+
+        2095           1
+
+
+ans =
+
+        2095          30
+
+</pre><p>Hence the data consist of about 2000 observations of 30 different stocks (29 DAX components and the DAX itself), and daxDates is the vector of respective dates in serial dates format. This information will be stored more meaningful and robust in a structure called daxStocks, together with respective returns, return dates and ticker symbols.</p><pre class="codeinput"><span class="comment">% assign existing data to daxStocks fields</span>
+daxStocks.dates = daxDates;
+daxStocks.prices = daxPrices;
+
+<span class="comment">% transform to percentage discrete returns</span>
+daxStocks.disRet = 100*diff(daxPrices)./daxPrices(1:end-1,:);
+
+<span class="comment">% diff() calculates differences between successive matrix entries</span>
+c = rand(2)
+differences = diff(c)
+
+<span class="comment">% get ticker symbols</span>
+daxStocks.ticker = {daxComp.Ticker daxCrude.Ticker};
+</pre><pre class="codeoutput">
+c =
+
+    0.6529    0.3000
+    0.3815    0.3401
+
+
+differences =
+
+   -0.2714    0.0401
+
+</pre><p>Now that historical returns are given suitable form, we can easily estimate expected returns and standard deviations. Note that most statistical functions act columnwise. Hence it is always preferable to store observations of a given variable in a column vector, and use different columns for different variables.</p><pre class="codeinput"><span class="comment">% estimate returns and sigmas of DAX components</span>
+expRets = mean(daxStocks.disRet );
+sigmaHats = sqrt(var(daxStocks.disRet));
+
+<span class="comment">% show in figure, standard deviations on x-axis</span>
+close   <span class="comment">% close last figure</span>
+scatter(sigmaHats, expRets, <span class="string">'.'</span>)
+
+<span class="comment">% highlight DAX itself</span>
+hold <span class="string">on</span>;
+scatter(sigmaHats(end), expRets(end), 30,[1 0 0], <span class="string">'filled'</span>)
+
+<span class="comment">% estimate regression line</span>
+betaHat = [ones(numel(sigmaHats), 1) sigmaHats']\expRets';
+
+<span class="comment">% calculate regression line</span>
+xLimits = get(gca, <span class="string">'XLim'</span>);
+grid = linspace(xLimits(1), xLimits(end), 200);   <span class="comment">% divide</span>
+                                    <span class="comment">% specified interval in 200</span>
+                                    <span class="comment">% parts of equal size</span>
+yVals = [ones(numel(grid), 1) grid']*betaHat;
+
+<span class="comment">% include regression line in red</span>
+plot(grid, yVals, <span class="string">'r'</span>)
+
+<span class="comment">% get R^2 from existing MATLAB function</span>
+stats = regstats(expRets, sigmaHats',<span class="keyword">...</span>
+    <span class="string">'linear'</span>, <span class="string">'rsquare'</span>);
+title([<span class="string">'R-square of regression: '</span> num2str(stats.rsquare)])
+xlabel(<span class="string">'estimated standard deviations'</span>)
+ylabel(<span class="string">'estimated mean returns'</span>)
+</pre><img vspace="5" hspace="5" src="matlab_script_2_07.png" alt=""> <p>Although the regression line exhibits an increasing slope as theory suggests, the R-squared of the regression is rather small. Evidence for a positive relation between return and risk is rather weak.</p><h2>CAPM<a name="37"></a></h2><p>The capital asset pricing model tries to explain asset pricies. It is set up on the assumption, that investors only get compensated for that part of an asset's risk that can not get diversified away in a portfolio. Shortly speaking, each assets partly exhibits comovements with the market, called systematic risk. Since this risk component underlies each asset, it can not be diversified away. Hence, investors need to be compensated for it. In contrast to that, the remaining risk inherent in an asset is called the idiosyncratic risk. This component is stock specific, and hence not correlated with idiosyncratic components of other firms. Hence, in a large portfolio of assets, this component could be diversified away.</p><p>In order to measure each assets' comovement with the market, we perform a linear regression of the daily returns on daily returns of a market index. Note that the theory is based on dependence to a market portfolio, where our market index here is only an imperfect substitution.</p><pre class="codeinput"><span class="comment">% preallocate vector for estimated betas</span>
+betas = zeros(1, 29);
+<span class="keyword">for</span> ii=1:29
+    betas(ii) = regress(daxStocks.disRet(:, end),<span class="keyword">...</span>
+        daxStocks.disRet(:, ii));   <span class="comment">% no intercept involved</span>
+<span class="keyword">end</span>
+
+<span class="comment">% plot betas with expected returns</span>
+close
+scatter(betas, expRets(1:end-1), <span class="string">'.'</span>)
+
+<span class="comment">% estimate regression coefficients with intercept</span>
+betaHat = [ones(numel(betas), 1) betas']\expRets(1:end-1)';
+
+<span class="comment">% include regression line</span>
+xLimits = get(gca, <span class="string">'XLim'</span>);
+grid = linspace(xLimits(1), xLimits(end), 200);
+yVals = [ones(numel(grid), 1) grid']*betaHat;
+
+hold <span class="string">on</span>;
+plot(grid, yVals, <span class="string">'r'</span>)
+xlabel(<span class="string">'estimated beta coefficients'</span>)
+ylabel(<span class="string">'estimated mean returns'</span>)
+title(<span class="string">'CAPM disproved?'</span>)
+</pre><img vspace="5" hspace="5" src="matlab_script_2_08.png" alt=""> <p>Note that this analysis is only a very rough investigation of the validity of the CAPM, with many sources of error involved (only substitute for market portfolio, applied to returns instead of excess returns,...). In fact, the purpose merely was to come up with some easy example of regression analysis in finance. So do not make the mistake to interpret the investigations as scientifically rigurous and adequate approach. As part of a more thorough investigation at least also returns of larger time horizons would have to be examined.</p><h2>Stock price prediction based on curve fitting<a name="40"></a></h2><p>While the previous part was concerned with looking for an explanatory variable for stock returns, we now will try to find regularities in stock prices that allow to make predictions on future price movements. That is, in course of its evolution, any stock price seems to follow some trend at some point of time. Looking at charts of stock prices one usually might be tempted to assume that such trends could be identified in real-time, thereby allowing for speculative trading opportunities. The idea in this chapter is to fit certain functions to historic stock price paths. Given that the function seems to be a good approximation to past prices, chance might be that it will still be an approximation in the future, so that our function could be used as stock price predictor. However, the approach taken here is slightly different. Based on curve fitting tools, positive trends in stock prices shall be identified. But instead of trying to exactly predict future prices, we only try to identify points in time where the current dynamic changes. That is, we only try to predict break-offs of rising stock prices, without bothering with the exact type of regime evolving after the break-off.</p><p>Given that returns fluctuate around a constant positive value, prices should exhibit exponential growth. Such growth rates best can be seen on logarithmic scale, since they correspond to a straight line here. Hence, we first extend the data structure with an additional field logPrices. Visualization shows that DAX prices tend to exhibit super-exponential growth during certain periods.</p><pre class="codeinput"><span class="comment">% get log prices</span>
+dax.logPrices = log(dax.prices);
+
+<span class="comment">% specify subperiod as strings</span>
+begT = <span class="string">'01-Jun-1993'</span>;
+endT = <span class="string">'29-Jul-1998'</span>;
+
+<span class="comment">% find indices associated with considered period</span>
+indS = find(dax.dates &gt; datenum(begT, <span class="string">'dd-mmm-yyyy'</span>), 1);
+indE = find(dax.dates &gt; datenum(endT, <span class="string">'dd-mmm-yyyy'</span>), 1);
+</pre><p>Note: it is not possible to access the prices with indexing based on the dates of the time series. Hence, dates always have to be converted to chronological indices first. However, the finance toolbox of MATLAB also includes financial time series objects (fints) that can be indexed by date strings. For example, myfts({'05/11/99', '05/21/99', '05/31/99'}) extracts the values of the fints object myfts at the specified dates.</p><pre class="codeinput"><span class="comment">% create figure window</span>
+close
+figure(<span class="string">'Position'</span>, [50 50 1200 600])
+
+<span class="comment">% plot DAX prices with subperiod highlighted</span>
+ax(1) = subplot(2, 1, 1);
+plot(dax.dates, dax.prices, <span class="string">'Color'</span>, [1 0.8 0.8]);
+hold <span class="string">on</span>;
+plot(dax.dates(indS:indE), dax.prices(indS:indE));
+datetick <span class="string">'x'</span>
+title(<span class="string">'linear scale'</span>)
+
+<span class="comment">% plot log DAX prices with subperiod highlighted</span>
+ax(2) = subplot(2, 1, 2);
+plot(dax.dates, dax.logPrices, <span class="string">'Color'</span>, [1 0.8 0.8]);
+hold <span class="string">on</span>;
+plot(dax.dates(indS:indE), dax.logPrices(indS:indE)); shg
+datetick <span class="string">'x'</span>
+title(<span class="string">'logarithmic scale'</span>)
+
+<span class="comment">% connect axes of both graphs: zooming in applies to both plots</span>
+linkaxes([ax(1) ax(2)], <span class="string">'x'</span>);
+</pre><img vspace="5" hspace="5" src="matlab_script_2_09.png" alt=""> <p>Although it would be easier to fit a straight line to log prices we want to estimate to best fitting exponential growth for normal prices using an optimization. Hence, the exponentially growing function f(x)= a_1*exp(a_2*x) shall be fitted to the stock prices. Therefore, parameters a_1 and a_2 will be chosen such that the mean squared error between the exponential function and the historic price chart is minimized.</p><pre class="codeinput"><span class="comment">% create new grid for subperiod, starting at 1</span>
+daysSinceBeg = 1:numel(dax.dates(indS:indE));   <span class="comment">% stock market</span>
+        <span class="comment">% prices are treated as equidistant, with no distinction</span>
+        <span class="comment">% between Friday / Monday or Monday / Tuesday</span>
+
+<span class="comment">% define exponential function as anonymous function</span>
+expFun = @(x, params) params(1)*exp(x.*params(2));
+
+<span class="comment">% evaluating exponential function similar to normal functions</span>
+fprintf([<span class="string">'Calling the anonymous function according to '</span><span class="keyword">...</span>
+    <span class="string">'usual syntax\nexpFun(3,[0.5 0.5])\nreturns the value'</span><span class="keyword">...</span>
+    <span class="string">' %1.2f.\n'</span>], expFun(3,[0.5 0.5]))
+</pre><pre class="codeoutput">Calling the anonymous function according to usual syntax
+expFun(3,[0.5 0.5])
+returns the value 2.24.
+</pre><pre class="codeinput"><span class="comment">% define mean squared error function as anonymous function</span>
+errFun = @(params, x, prices)<span class="keyword">...</span>
+    sum((prices(:) - expFun(x(:), params)).^2);  <span class="comment">% for any price</span>
+        <span class="comment">% series given by prices and associated x values the</span>
+        <span class="comment">% error function computes the mean squared error between</span>
+        <span class="comment">% exponential function with parameters params and the</span>
+        <span class="comment">% price series</span>
+
+<span class="comment">% init guess for optimization</span>
+params0 = [dax.prices(indS) <span class="keyword">...</span>
+    log(dax.prices(indE) - dax.prices(indS))/<span class="keyword">...</span>
+    (dax.dates(indE) - dax.dates(indS))];
+        <span class="comment">% params(2) chosen so that it fulfills the equation:</span>
+        <span class="comment">% exp((daysSinceBeg(end)-daysSinceBeg(1))*a_2)</span>
+        <span class="comment">%           != prices(end)-prices(1)</span>
+
+<span class="comment">% specify options for optimization</span>
+opt = optimset(<span class="string">'display'</span>, <span class="string">'off'</span>, <span class="string">'TolX'</span>, 1e-18, <span class="string">'TolFun'</span>, 1e-8);
+
+<span class="comment">% optimization</span>
+[bestParams expMSE] = fminsearch(errFun, params0, opt,<span class="keyword">...</span>
+    daysSinceBeg, dax.prices(indS:indE));
+</pre><p>Note: since the objective function, which shall be minimized, also depends on the grid values of x and the given price vector prices, these data has to be given as fixed input into the optimization, since the optimization shall only be applied to the parameter values. Therefore, the parameters of interest have to appear in the objective function as one vector and as first input. Additional inputs are included in the optimization routine fminsearch as additional inputs at last positions. However, this syntax is only allowed when the objective function is given as function handle to an anonymous function. An example of a similiar optimization task involving an already existing MATLAB function will be given further below.</p><pre class="codeinput"><span class="comment">% calculate associated exponential function values</span>
+expVals = expFun(daysSinceBeg, bestParams);
+
+<span class="comment">% include in given figure</span>
+subplot(2, 1, 1);
+plot(dax.dates(indS+daysSinceBeg), expVals, <span class="string">'r'</span>); <span class="comment">% Note:</span>
+        <span class="comment">% dax.dates(indS) + daysSinceBeg does not work, since</span>
+        <span class="comment">% dax.dates is not numbered consecutively. dax.dates</span>
+        <span class="comment">% refers to business days, not consecutive days!</span>
+xlabel(<span class="string">'dates'</span>)
+ylabel(<span class="string">'prices'</span>)
+
+subplot(2, 1, 2);
+plot(dax.dates(indS+daysSinceBeg), log(expVals), <span class="string">'r'</span>); shg
+xlabel(<span class="string">'dates'</span>)
+ylabel(<span class="string">'prices'</span>)
+
+<span class="comment">% calculate mean squared error on logarithmic scale</span>
+mse = sum((dax.logPrices(indS+daysSinceBeg)-log(expVals(:))).^2);
+
+<span class="comment">% display mean squared error</span>
+fprintf([<span class="string">'\nThe mean squared error between the exponential fit'</span><span class="keyword">...</span>
+        <span class="string">' and\nthe stock price path is %3.4f.\n'</span>], mse);
+</pre><pre class="codeoutput">
+The mean squared error between the exponential fit and
+the stock price path is 32.2208.
+</pre><img vspace="5" hspace="5" src="matlab_script_2_10.png" alt=""> <p>With the straight line as benchmark, one can see that the stock price path exhibits a convex curvature during the subperiod. This pattern indicates super-exponential growth rates. Such growth rates usually are associated with stock market bubbles. Our intention now will be to identify evolving stock market bubbles, and try to predict the time they burst. According to Didier Sornette and his colleagues, stock market bubbles can be approximated with super-exponentially growing log-periodic power law (LPPL) functions. These are super-exponentially growing functions with finite-time singularities and oscillating behaviour, given by the formula: f(x) = a_1 + a_2*(a_3-x)^(a_4)*       (1+a_5*cos(a_6*log(a_3-a_8*x)+a_7). In order to get an impression about the appropriateness of a LPPL function, we will fit it the subperiod and compare its mean squared error to the error of a simple exponential fucntion. Furthermore, we will examine whether the date of the estimated finite-time singularity could be used as indicator of a forthcoming change in regimes.</p><pre class="codeinput"><span class="comment">% fit LPPL model to subperiod</span>
+params = lpplFit(dax.logPrices(indS:indE));
+
+<span class="comment">% calculate approximation values to stock prices</span>
+[vals derivs] = lpplFunc(params);
+
+<span class="comment">% create associated grid</span>
+grid = dax.dates(indS + ( 1:(params(3)/params(8)-1) ));
+    <span class="comment">% Note: params(3)/params(8) denotes the time in business days</span>
+    <span class="comment">% from beginning of subperiod until finite-time singularity.</span>
+
+<span class="comment">% include in given figure</span>
+subplot(2, 1, 2);
+plot(grid, vals, <span class="string">'g'</span>); shg
+
+<span class="comment">% include line for finite time singularity</span>
+yLimits = get(gca, <span class="string">'yLim'</span>);
+line(dax.dates(indS + floor(params(3)/params(8)) )*[1 1], yLimits,<span class="keyword">...</span>
+    <span class="string">'Color'</span>, <span class="string">'k'</span>)
+
+<span class="comment">% calculate mean squared error on logarithmic scale</span>
+mseLppl = sum( (dax.logPrices(indS + daysSinceBeg) -<span class="keyword">...</span>
+    (vals(daysSinceBeg)')).^2);
+
+fprintf([<span class="string">'\nIn contrast to the MSE of '</span> num2str(mse) <span class="keyword">...</span>
+    <span class="string">' obtained before,\n we now get a MSE of only '</span><span class="keyword">...</span>
+    num2str(mseLppl) <span class="string">'.\n'</span>])
+</pre><pre class="codeoutput">
+In contrast to the MSE of 32.2208 obtained before,
+ we now get a MSE of only 3.8615.
+</pre><img vspace="5" hspace="5" src="matlab_script_2_11.png" alt=""> <p>When looking at the figure, we can see that the fitted LPPL model at the time of the end of the subperiod could indicates an impending regime change, since the critical point given by the finite-time singularity lies only days ahead.</p><p>In order to examine the validity of the LPPL model on further stock market indices, you can uncomment the following lines of code and interactively conduct experiments on historic data. As examples of further accurate subperiod fitting, take a look at Hang Seng index from 15-Dec-2004 to 21-Nov-2007, which leads to an estimated regime change 52 business days ahead, or the German stock market index from 15-Oct-1992 to 29-Jul-1998.</p><p>% Interactive examination of further stock market indices.</p><p>%tickerSyms = cell(8, 1); tickerSyms = {'^GDAXI';'^SMSI';'^SSMI';...     '^OMXSPI';'^NDX';'^DJI';'^HSI';'^SSEC'};</p><p>indexNames = {'DAX'; 'Madrid General';...     'Swiss Market'; 'Stockholm General'; 'NASDAQ'; ...     'Dow Jones Industrial'; 'Hang Seng';...     'Shanghai Composite'};</p><p>for ii=1:numel(tickerSyms)     fprintf(['\nIndex investigated: ' indexNames{ii} '\n'])     data = hist_stock_data(begT, endT, tickerSyms{ii});</p><pre>   if (~isempty(data))
+      [data_dates data_prices] = processData(data);
+      params = LPPLinteractively(data_prices, data_dates)
+      title([indexNames{ii} ' -- Press key to continue'])
+      hold off
+   end</pre><pre>   pause
+end</pre><p>%% Movie</p><p>frames = LPPLmovie(data_prices, data_dates, 50);</p><p>%% movie(frames, 10, 2)</p><p class="footer"><br>
+      Published with MATLAB&reg; 7.14<br></p></div><!--
+##### SOURCE BEGIN #####
+%% Working with financial data: regression analysis and curve fitting
+% Christian Groll
+%
+% Seminar f�r Finanz�konometrie, Ludwig-Maximilians-Universit�t 
+% M�nchen. 
+%
+% All rights reserved.
+
+%%
+% This is the second part of the MATLAB course. Here we will
+% show how to download real data and how this data can be further
+% processed.
+%
+% Then, as first application, we will examine whether some
+% theoretical relationships between risk and return can be found
+% in german stock data. This analysis will be based on regression
+% models.
+%
+% Subsequently, we will try to find deterministic trends in stock
+% market data based on curve fitting approaches.
+% Only the next script will show common approaches to
+% modelling of stock market returns as stochastic variables.
+
+
+%% Required functions
+%   hist_stock_data
+%   processData
+%   LPPL
+%   LPPLfit
+%   constrFunc
+%   LPPLinteractively
+
+%% Load historic DAX prices
+% The following code provides an example of the usage of the
+% function hist_stock_data, which is able to download historic
+% stock prices and trading volumes based on the data provided by
+% Yahoo!finance. In order to make the data comply with our
+% requirements, some additional treatments are needed first.
+
+% specify ticker symbol as string variable
+tickSym = '^GDAXI';     % specify stock data of interest
+
+% specify beginning and ending as string variables
+dateBeg = '01011990';   %  day, month, year: ddmmyyyy
+dateEnd = '01072013';
+
+%% 
+% Alternatively, dates also can be determined dynamically,
+% with regard to today. Since the MATLAB command "today" measures
+% time on a numeric scale, the value displayed is a number.
+
+% display date of today
+fprintf(['\nToday is ' num2str(today) '.\n'])
+    % Note: fprintf is able to display a string to the command
+    % window, without having to assign it to a variable or MATLAB's
+    % temporary placeholder "ans" (short for "answer") first. In
+    % order to get the input string, in this case we first have to
+    % concatenate smaller strings into one large string.
+
+%%
+% In order to make the numeric data value more meaningful, we can
+% transform it with the function datestr() into a date
+% expression. As a string, this can be directly assigned to the
+% variable declaring the end of the data period requested.
+
+% dynamic assignment to end of period
+dateEnd = datestr(today, 'ddmmyyyy')  % today as last date
+
+%% 
+% However, instead of using "today", you also can use the command
+% "date", which returns the date as string right away.
+
+fprintf(['\nToday is ' date '.\n'])
+
+%%
+% In order to download data from Yahoo!finance, we make use of
+% the function hist_stock_data. This function can be found at the
+% MATLAB File Exchange at 
+% http://www.mathworks.com/matlabcentral/fileexchange/. 
+% The File Exchange is a place where users can find and share
+% content related to MATLAB development.
+
+% load data
+daxCrude = hist_stock_data(dateBeg, dateEnd, tickSym);
+
+%%
+% The function hist_stock_data returns a structure variable. A
+% more detailed insight into the formatting of the output can be
+% achieved with queries.
+
+daxCrude
+exampleDateEntries = daxCrude.Date(1:4)
+
+%%
+% As the second query shows, historic prices are ordered with latest
+% observations first. This configuration is disadvantageous for
+% further work, since plotting of the prices would show the latest
+% observations to the left. Moreover, instead of storing the dates as
+% a cell array of string variables, we will achieve more flexibility
+% if we store dates as serial dates, which is the same conversion we
+% already encountered with the today command. In this numeric scale,
+% each date is assigned to a uniquely specified number. As anchor
+% point of this system, January 1st, 0000, is assigned to the value
+% one.
+
+fprintf(['Number 1 is equal to the date ' datestr(1) '.\n'])
+
+%%
+% In order to switch between dates given as strings and numeric
+% serial dates the functions datestr and datenum can be used. Now we
+% want to convert the date strings to serial dates.
+
+serialDates = datenum(daxCrude.Date, 'yyyy-mm-dd');
+% second argument specifies input format of string dates
+
+%%
+% In accordance with common convention prices and dates shall be
+% arranged in increasing order, with most recent data at the end.
+% Instead of manually encoding a for-loop, the MATLAB function
+% flipud can be used to flip both matrices upside down. The
+% results will be assigned to fields of a new structure variable 
+% called dax.
+
+% flip most recent entries to the end
+dax.dates = flipud(serialDates);    % initializes structure dax
+dax.prices = flipud(daxCrude.Close);
+
+%% Plotting financial data
+% When plotting financial data, we usually want the x-axis to be
+% denoted in dates instead of numeric values. This can be done
+% with help of the command "datetick", which interprets values of 
+% the respective axis as serial dates, and converts the labels of
+% the individual ticks into meaningful date strings. 
+
+%%
+% Further adjustments to graphical representations can be
+% achieved by manual configuration of figure sizes, as well as
+% additional graphics in one figure window. Both concepts are
+% applied in the following illustration.
+
+figure('position',[50 50 1200 600]) % create gray window, left 
+                                    % corner at latitude 50,
+                                    % height 50, with width 1200
+                                    % and height 600
+
+subplot(1, 2, 1);     % Include two different white windows within 
+                    % the gray figure window. 1,2 denotes
+                    % arrangement (one row, two columns of white
+                    % windows), while the last number (1) denotes 
+                    % the currently used window.
+               
+% use plot command without further adjustments                    
+plot(dax.prices) % since no x-values are specified, MATLAB 
+                % automatically numbers observations from 1 to 
+                % numel(dax.dates).
+                
+subplot(1, 2, 2);
+plot(dax.dates, dax.prices)
+datetick 'x'    % exact format of date labels can be chosen with 
+                % additional input, e.g. try datetick('x', 29) and
+                % datetick('x', 10)
+xlabel('dates')
+ylabel('prices')
+title('historic DAX values')
+
+% crop x-axis to relevant size only
+set(gca, 'xLim',[dax.dates(1) dax.dates(end)])
+
+%%
+% As can be seen at the command line used to crop the x-axis, 
+% though MATLAB renders the x-axis labels to date strings, it 
+% still needs references denoted in numeric values. That is, it 
+% is not possible to directly tell MATLAB to restrict the axis to
+% 01.01.2000 to 31.12.2002 for example. Indexing with date
+% strings is generally not possible. Hence, simple graphical
+% modifications may become quite cumbersome. 
+% As first example, the maximum value during the period shall be
+% highlighted with a red point. The general way to do this will
+% be to first find the entry with the highest point in the price
+% vector, which will be given as index value relative to the
+% price matrix. Then, the index has to be converted into the
+% respective index of the serial dates vector. In most cases,
+% lengths of price and serial dates vectors will coincide, so
+% that nothing needs to be done in this step. At last, this index
+% is used to get the value of the serial dates vector at the
+% respective entry.
+
+%% Logical indexing
+% In order to find certain specified values in a given matrix,
+% MATLAB usually makes use of the concept of logical indexing. In
+% logical notation, a value of zero represents "no", while a
+% value of "1" has to be interpreted as "yes". Hence, for example,
+% when checking whether the entries of a matrix fulfill a given
+% condition, MATLAB checks the condition on each entry, and
+% returns a logical matrix of same size filled with zeros and 
+% ones.
+
+% init matrix
+matr = [1 2 3 4 5 6]
+
+% check if entries are greater than 3
+greaterThan3 = matr>3
+
+% matrix greaterThan3 is logical variable
+logicalCheck = islogical(greaterThan3)
+
+%% 
+% Such logical matrices created from logical or relational 
+% operations can be used to extract values of a given matrix.
+% However, these extracted values are always returned arranged in
+% vectors, so that information about the position in the original
+% matrix is lost.
+
+% get values greater than 3
+valuesGreater3 = matr(greaterThan3)
+
+%%
+% In order to compare numerical values, MATLAB uses relational
+% operators.
+
+% equal to
+equalThree = (matr == 3)   % since single equal signs are already 
+                        % used for assignments, MATLAB notation
+                        % requires two equality signs to check
+                        % for equality
+
+% less or equal
+lessEqualThree = (matr <= 3)   % greater or equal: >=
+
+% not equal to
+notEqualThree = (matr ~= 3)
+
+%%
+% Matrix manipulation also can be done based on logical indexing.
+% For example, set each value of matr below three to zero.
+
+% new matrix given by
+matr(matr<3)=0
+
+% multiply each entry greater than 4 with 10
+matr(matr>4) = 4*matr(matr>4)
+
+%% 
+% In order to check more than one condition, MATLAB also includes
+% operators to combine logical matrices.
+
+% create two random logicals
+log1 = (rand(3)>0.5)
+log2 = (rand(3)>0.5)
+
+% elementwise AND: both logicals have to be 1
+AND = (log1 & log2)
+
+% elementwise OR: at least one of both logicals has to be 1
+OR = (log1 | log2)
+
+% NONE: elementwise AND inverted with tilde command
+NONE = ~AND
+
+%% 
+% In order to not lose information about the position of entries
+% within a matrix, you can use the find() function, which returns
+% the indices of the first k entries which fulfill a certain
+% condition. However, note that indices are given in single
+% index notation.
+
+matr
+greater20 = (matr>=20) % shows logical matrix: indices could be read 
+                    % off manually
+find(matr>=20)     % automatically returns all indices with logical 
+                % value one
+find(matr>=20, 1)   % returns only first index with logical value one
+
+%%
+% Returning to the original intention to highlight the maximum
+% price value, this gives
+
+% find index of maximum price
+ind = find(dax.prices == max(dax.prices), 1);
+
+% find associated serial date
+maxDate = dax.dates(ind);
+
+% include in subplot(1, 2, 2)
+subplot(1, 2, 2)
+hold on;    % allows to add elements, without deleting previous 
+            % graphic
+
+plot(maxDate, max(dax.prices), '.r', 'MarkerSize', 18)
+shg         % show current graphic: pops up figure window again
+hold off;   % next graphic will not be included again
+
+%%
+% Despite of going this quite cumbersome programmatic way, MATLAB
+% also allows interactive request in figures. This way, press the
+% "Data Cursor" button in the figures toolbar, select the global
+% maximum on your own by clicking on it, then right click on
+% datatip, and "Export Cursor Data to Workspace". Set name
+% to maxPrice. This exports information about the maximum stock 
+% price into a structure called maxPrice.
+
+
+%%
+% Instead of absolute prices, investors usually are more
+% interested in returns of the dax, where absolute gains / losses
+% are put in relation to the capital invested. Since each return
+% needs one starting value and one ending value, the length of
+% the time series will decrease by one. Hence, also the date
+% vector has to be adapted.
+
+% transform prices to discrete percentage returns
+dax.disRet = 100*(dax.prices(2:end) - dax.prices(1:end-1))./...
+    dax.prices(1:end-1);
+
+% date vector for returns
+dax.retDates = dax.dates(2:end);
+
+% compare prices and returns in figure
+close   % closes previously used figure window
+
+% plot prices
+ax(1) = subplot(2, 1, 1); % storage of axes handle at ax(1) allows 
+                        % accessing it later 
+plot(dax.retDates, dax.prices(2:end))   
+datetick 'x'
+set(gca, 'xLim',[dax.retDates(1) dax.retDates(end)])
+title('historic DAX prices')
+xlabel('dates')
+ylabel('prices')
+
+% plot returns
+ax(2) = subplot(2, 1, 2);
+plot(dax.retDates, dax.disRet)
+datetick 'x'
+set(gca, 'xLim',[dax.retDates(1) dax.retDates(end)])
+title('historic DAX returns')
+xlabel('dates')
+ylabel('returns')
+
+% connect axes of both graphs: zooming in applies to both plots
+linkaxes([ax(1) ax(2)], 'x')
+
+%%
+% As can be seen, the return series exhibits phases of different
+% volatilities. While most of the time rather small returns
+% occur, there are also times were both positive and negative
+% returns are persistently larger. This observation is usually
+% refered to as volatility clusters, and is understood as a
+% stylized fact about stock market data. However, when focussing
+% on longer investment horizons, we usually neglect the
+% information about the exact times of occurrence of each return,
+% and take a look at the distribution of returns only. This is
+% done with a histogram.
+
+close   % closes previously used window
+hist(dax.disRet, 30)     % sample size justifies 30 bins
+
+%% 
+% In this figure, we want to include a line indicating the mean
+% return over the observed period, as well as two lines
+% indicating regions with more than two standard deviations away 
+% from the mean.
+
+% calculate mean return
+meanRet = sum(dax.disRet)/numel(dax.disRet);
+
+% calculate standard deviation
+stdDev = sum((dax.disRet-meanRet).^2)/(numel(dax.disRet)-1);
+stdDev = sqrt(stdDev);
+
+% check results with existing MATLAB functions
+deviations = [(meanRet - mean(dax.disRet))...
+    (stdDev-sqrt(var(dax.disRet)))]
+
+% include in graphic
+yLimits = get(gca, 'yLim');
+line(meanRet*[1 1], yLimits, 'Color', 'r')
+line((meanRet+2*stdDev)*[1 1], yLimits, 'Color', 'r')
+line((meanRet-2*stdDev)*[1 1], yLimits, 'Color', 'r')
+text(meanRet+2*stdDev, yLimits(end)/2, '2 standard deviations')
+
+%% Regression analysis
+% One of the most important models also in econometrics is the
+% linear model. Hence, the following lines show the
+% implementation and estimation of a linear regression model in
+% MATLAB. First, we sample from a specified linear model.
+
+% init params
+nSim = 1000;       % sample size
+muX = 12;       % params explanatory variable
+sigmaX = 2.3;
+coeff = 0.8;    % regression coefficient
+intcept = 4.3;  % regression intercept
+
+% simulate explanatory variable
+xMatr = normrnd(muX, sigmaX, nSim, 1);
+
+% simulate standard normally distributed innovations
+epsilon = randn(nSim, 1);
+
+% calculate Y according to linear model
+yMatr = intcept + coeff*xMatr + epsilon;    % do not use for loop
+
+%%
+% Now we want to estimate the parameters of the model based on
+% the values simulated. 
+
+% because of intercept, expand matrix of explanatory variables
+xMatr = [ones(nSim, 1) xMatr];
+
+% OLS estimation, naive way
+paramsHat = inv(xMatr'*xMatr)*xMatr'*yMatr;    
+% usual estimation formula 
+
+% avoiding single matrix inversion as mlint warning suggests
+paramsHat2 = (xMatr'*xMatr)\(xMatr'*yMatr);      % faster way
+paramsHat3 = xMatr\yMatr;                % best way
+
+% calculate regression line
+xLimits = [floor(min(xMatr(:, 2))) ceil(max(xMatr(:, 2)))];   
+                                 % use nearest
+                                 % neighbouring integer numbers
+grid = xLimits(1):0.1:xLimits(2);       
+vals = paramsHat(1)+paramsHat(2)*grid;    
+
+% plotting data
+close
+scatter(xMatr(:, 2), yMatr, '.');   % used for visualizing points 
+                                    % cloud 
+
+% include regression line
+hold on;    % plot in same figure
+plot(grid, vals, 'LineWidth', 2, 'Color', 'r')   % larger line width
+set(gca, 'xLim', xLimits)
+xlabel('regressor variable')
+ylabel('dependent variable')
+title(['Linear model: estimated beta is ' num2str(paramsHat(2))])
+
+%%
+% Because of the risk-aversion of investors, theoretical models
+% often conclude that riskier assets should in general coincide
+% with higher expected returns, since investors demand higher
+% compensation for the risk involved. As a first application of
+% the linear model, we want to investigate whether this positive
+% relationship can be verified for German stock data. Therefore,
+% we will download historical data of all 30 components of the
+% German stock market index DAX, estimate their mean return and 
+% return standard deviation, and regress the mean returns on the
+% standard deviations. Note that standard deviation is only one
+% way to measure inherent risk, and one common criticism is that
+% the symmetrical nature of standard deviation measures positive
+% deviations the same way as negative ones.
+
+% specify start and end point of investigation period
+dateBeg = '01011990';
+dateEnd = '01072011';
+
+% download data of all components: dax_comp is structure array
+daxComp = hist_stock_data(dateBeg, dateEnd, 'ADS.DE', 'ALV.DE',...
+    'BAS.DE', 'BAYN.DE', 'BEI.DE', 'BMW.DE', 'CBK.DE', 'DAI.DE', ...
+    'DB1.DE',...
+    'DBK.DE', 'DPW.DE', 'DTE.DE', 'EOAN.DE', 'FME.DE', 'FRE.DE',...
+    'HEI.DE', 'HEN3.DE', 'IFX.DE', 'LHA.DE', 'LIN.DE', 'MAN.DE',...
+    'MEO.DE', 'MRK.DE', 'MUV2.DE', 'RWE.DE', 'SAP', 'SDF.DE',...
+    'SIE.DE', 'TKA.DE', 'VOW3.DE');
+
+%%
+% When downloading data of so many different stocks at 
+% Yahoo!finance, we usually will observe different sample sizes 
+% of the individual time series. This also has to be taken into
+% account when stocks of different countries are involved, since
+% deviating holidays will lead to different sample sizes. Let's
+% first investigate the sample sizes.
+
+% preallocate storage variables for first dates and samples sizes
+firstDates = zeros(size(daxComp)); 
+sampleSizes = zeros(size(daxComp));
+
+% extract first date and sample size of each component
+for ii=1:numel(firstDates)
+    firstDates(ii) = datenum(daxComp(ii).Date(end));
+    sampleSizes(ii) = numel(daxComp(ii).Date);
+end
+
+% display first dates as strings to command window
+fprintf('\nThe respective first observations are given by:\n')
+
+for ii=4:4:numel(daxComp)
+    % display four dates per row
+    fprintf([datestr(firstDates(ii-3), 'dd-mmm-yyyy') ', '...
+        datestr(firstDates(ii-2), 'dd-mmm-yyyy') ', ' ...
+        datestr(firstDates(ii-1), 'dd-mmm-yyyy') ', ' ...
+        datestr(firstDates(ii), 'dd-mmm-yyyy') '\n'])
+end
+
+% if numel(daxComp) is not divisible by 4
+remaining = mod(numel(daxComp), 4);
+nMultiplesOfFour = (numel(daxComp) - remaining) / 4;
+nAlreadyShown = nMultiplesOfFour * 4;
+for ii=1:remaining
+    if(ii==1)
+        str = datestr(firstDates(ii + nAlreadyShown), 'dd-mmm-yyyy');
+    else
+        str = [str ', ' datestr(firstDates(ii + nAlreadyShown),...
+                                'dd-mmm-yyyy')];
+    end
+end
+fprintf(str)       
+
+% get ticker symbol of component with minimum sample size
+tSym = daxComp(find(sampleSizes == min(sampleSizes))).Ticker;
+
+% display with sample sizes
+fprintf(['\nThe minimum sample size occurs for ' tSym ...
+    '.\nThere are only %2i observations.\n'], min(sampleSizes))
+
+%%
+% This index refers to VOW3.DE, standing for Volkswagen. Since all
+% other sample sizes are large enough, we simply exclude Volkswagen
+% from the analysis.
+
+% delete Volkswagen from data
+indexOfMinimumSampleSize = find(sampleSizes == min(sampleSizes));
+daxComp(indexOfMinimumSampleSize) = [];
+firstDates(indexOfMinimumSampleSize) = [];
+sampleSizes(indexOfMinimumSampleSize) = [];
+
+% get new minimum
+fprintf(['\nThe new minimum now is %2i, which seems to be\n'...
+    'sufficient for reasonable analysis.\n'], min(sampleSizes))
+
+%% 
+% Exercise:
+%
+% Since the availability of data for individual DAX components
+% changes from time to time, it is not guaranteed, that there will
+% always be only one company with insufficient data. A better way
+% hence would be defining a certain minimal sample size as threshold.
+% Then, all companies with less data should be removed automatically.
+
+
+%%
+% In order to eliminate data points with missing values and to
+% adjust the data to the usual convention with chronologically
+% increasing points in time, we make use of the function
+% processData(). Also, string dates are converted to serial 
+% dates, and the already used data of the German stock index is
+% included.
+
+tic
+[daxDates daxPrices] = processData([daxComp daxCrude]);
+toc
+%%
+% The following two queries give an impression about the nature
+% of the output of the function.
+
+% both output are numeric variables
+numericVars = [isnumeric(daxDates) isnumeric(daxPrices)]
+
+% get dimensions
+size(daxDates) 
+size(daxPrices)
+
+%%
+% Hence the data consist of about 2000 observations of 30 different
+% stocks (29 DAX components and the DAX itself), and daxDates is the
+% vector of respective dates in serial dates format. This information
+% will be stored more meaningful and robust in a structure called
+% daxStocks, together with respective returns, return dates and
+% ticker symbols.
+
+% assign existing data to daxStocks fields
+daxStocks.dates = daxDates;
+daxStocks.prices = daxPrices;
+
+% transform to percentage discrete returns
+daxStocks.disRet = 100*diff(daxPrices)./daxPrices(1:end-1,:);
+
+% diff() calculates differences between successive matrix entries
+c = rand(2)
+differences = diff(c)
+
+% get ticker symbols
+daxStocks.ticker = {daxComp.Ticker daxCrude.Ticker};
+
+%%
+% Now that historical returns are given suitable form, we can
+% easily estimate expected returns and standard deviations. Note
+% that most statistical functions act columnwise. Hence it is
+% always preferable to store observations of a given variable in
+% a column vector, and use different columns for different
+% variables.
+
+% estimate returns and sigmas of DAX components
+expRets = mean(daxStocks.disRet );
+sigmaHats = sqrt(var(daxStocks.disRet));
+
+% show in figure, standard deviations on x-axis
+close   % close last figure
+scatter(sigmaHats, expRets, '.')
+
+% highlight DAX itself
+hold on;
+scatter(sigmaHats(end), expRets(end), 30,[1 0 0], 'filled')
+
+% estimate regression line
+betaHat = [ones(numel(sigmaHats), 1) sigmaHats']\expRets';
+
+% calculate regression line
+xLimits = get(gca, 'XLim');
+grid = linspace(xLimits(1), xLimits(end), 200);   % divide 
+                                    % specified interval in 200
+                                    % parts of equal size
+yVals = [ones(numel(grid), 1) grid']*betaHat;
+
+% include regression line in red
+plot(grid, yVals, 'r')
+
+% get R^2 from existing MATLAB function
+stats = regstats(expRets, sigmaHats',...
+    'linear', 'rsquare');
+title(['R-square of regression: ' num2str(stats.rsquare)])
+xlabel('estimated standard deviations')
+ylabel('estimated mean returns')
+
+%% 
+% Although the regression line exhibits an increasing slope as
+% theory suggests, the R-squared of the regression is rather
+% small. Evidence for a positive relation between return and 
+% risk is rather weak.
+
+%% CAPM
+% The capital asset pricing model tries to explain asset pricies.
+% It is set up on the assumption, that investors only get
+% compensated for that part of an asset's risk that can not get
+% diversified away in a portfolio. 
+% Shortly speaking, each assets partly exhibits comovements with
+% the market, called systematic risk. Since this risk component
+% underlies each asset, it can not be diversified away. Hence,
+% investors need to be compensated for it.
+% In contrast to that, the remaining risk inherent in an asset is
+% called the idiosyncratic risk. This component is stock
+% specific, and hence not correlated with idiosyncratic
+% components of other firms. Hence, in a large portfolio of
+% assets, this component could be diversified away.
+
+%%
+% In order to measure each assets' comovement with the market, we
+% perform a linear regression of the daily returns on daily
+% returns of a market index. Note that the theory is based on
+% dependence to a market portfolio, where our market index here 
+% is only an imperfect substitution.
+
+% preallocate vector for estimated betas
+betas = zeros(1, 29);
+for ii=1:29
+    betas(ii) = regress(daxStocks.disRet(:, end),...
+        daxStocks.disRet(:, ii));   % no intercept involved
+end
+
+% plot betas with expected returns
+close
+scatter(betas, expRets(1:end-1), '.')
+
+% estimate regression coefficients with intercept 
+betaHat = [ones(numel(betas), 1) betas']\expRets(1:end-1)';
+
+% include regression line
+xLimits = get(gca, 'XLim');
+grid = linspace(xLimits(1), xLimits(end), 200);
+yVals = [ones(numel(grid), 1) grid']*betaHat;
+
+hold on;
+plot(grid, yVals, 'r')
+xlabel('estimated beta coefficients')
+ylabel('estimated mean returns')
+title('CAPM disproved?')
+
+%%
+% Note that this analysis is only a very rough investigation of
+% the validity of the CAPM, with many sources of error involved
+% (only substitute for market portfolio, applied to returns
+% instead of excess returns,...). In fact, the purpose merely was
+% to come up with some easy example of regression analysis in
+% finance. So do not make the mistake to interpret the
+% investigations as scientifically rigurous and adequate
+% approach. As part of a more thorough investigation at least 
+% also returns of larger time horizons would have to be examined.
+
+%% Stock price prediction based on curve fitting
+% While the previous part was concerned with looking for an
+% explanatory variable for stock returns, we now will try to find
+% regularities in stock prices that allow to make predictions on
+% future price movements. That is, in course of its evolution,
+% any stock price seems to follow some trend at some point of
+% time. Looking at charts of stock prices one usually might be
+% tempted to assume that such trends could be identified in
+% real-time, thereby allowing for speculative trading 
+% opportunities. The idea in this chapter is to fit certain
+% functions to historic stock price paths. Given that the
+% function seems to be a good approximation to past prices,
+% chance might be that it will still be an approximation in the
+% future, so that our function could be used as stock price 
+% predictor.
+% However, the approach taken here is slightly different. Based
+% on curve fitting tools, positive trends in stock prices shall
+% be identified. But instead of trying to exactly predict future
+% prices, we only try to identify points in time where the
+% current dynamic changes. That is, we only try to predict
+% break-offs of rising stock prices, without bothering with the
+% exact type of regime evolving after the break-off.
+
+%%
+% Given that returns fluctuate around a constant positive value,
+% prices should exhibit exponential growth. Such growth rates
+% best can be seen on logarithmic scale, since they correspond to
+% a straight line here. Hence, we first extend the data structure
+% with an additional field logPrices. Visualization shows that
+% DAX prices tend to exhibit super-exponential growth during
+% certain periods.
+
+% get log prices
+dax.logPrices = log(dax.prices);
+
+% specify subperiod as strings
+begT = '01-Jun-1993';
+endT = '29-Jul-1998';
+
+% find indices associated with considered period
+indS = find(dax.dates > datenum(begT, 'dd-mmm-yyyy'), 1);
+indE = find(dax.dates > datenum(endT, 'dd-mmm-yyyy'), 1);
+
+%%
+% Note: it is not possible to access the prices with indexing
+% based on the dates of the time series. Hence, dates always have
+% to be converted to chronological indices first. However, the
+% finance toolbox of MATLAB also includes financial time series
+% objects (fints) that can be indexed by date strings. For
+% example, myfts({'05/11/99', '05/21/99', '05/31/99'}) extracts
+% the values of the fints object myfts at the specified dates.
+
+% create figure window 
+close
+figure('Position', [50 50 1200 600])
+
+% plot DAX prices with subperiod highlighted
+ax(1) = subplot(2, 1, 1);
+plot(dax.dates, dax.prices, 'Color', [1 0.8 0.8]);
+hold on;
+plot(dax.dates(indS:indE), dax.prices(indS:indE)); 
+datetick 'x'
+title('linear scale')
+
+% plot log DAX prices with subperiod highlighted
+ax(2) = subplot(2, 1, 2);
+plot(dax.dates, dax.logPrices, 'Color', [1 0.8 0.8]);
+hold on;
+plot(dax.dates(indS:indE), dax.logPrices(indS:indE)); shg
+datetick 'x'
+title('logarithmic scale')
+
+% connect axes of both graphs: zooming in applies to both plots
+linkaxes([ax(1) ax(2)], 'x');
+
+%% 
+% Although it would be easier to fit a straight line to log
+% prices we want to estimate to best fitting exponential growth
+% for normal prices using an optimization.
+% Hence, the exponentially growing function f(x)= a_1*exp(a_2*x)
+% shall be fitted to the stock prices. Therefore, parameters a_1 
+% and a_2 will be chosen such that the mean squared error between
+% the exponential function and the historic price chart is 
+% minimized.
+
+% create new grid for subperiod, starting at 1
+daysSinceBeg = 1:numel(dax.dates(indS:indE));   % stock market 
+        % prices are treated as equidistant, with no distinction
+        % between Friday / Monday or Monday / Tuesday
+
+% define exponential function as anonymous function
+expFun = @(x, params) params(1)*exp(x.*params(2));
+
+% evaluating exponential function similar to normal functions
+fprintf(['Calling the anonymous function according to '...
+    'usual syntax\nexpFun(3,[0.5 0.5])\nreturns the value'...
+    ' %1.2f.\n'], expFun(3,[0.5 0.5]))
+
+%%
+
+% define mean squared error function as anonymous function
+errFun = @(params, x, prices)...
+    sum((prices(:) - expFun(x(:), params)).^2);  % for any price 
+        % series given by prices and associated x values the
+        % error function computes the mean squared error between
+        % exponential function with parameters params and the
+        % price series
+
+% init guess for optimization
+params0 = [dax.prices(indS) ...
+    log(dax.prices(indE) - dax.prices(indS))/...
+    (dax.dates(indE) - dax.dates(indS))];
+        % params(2) chosen so that it fulfills the equation:
+        % exp((daysSinceBeg(end)-daysSinceBeg(1))*a_2) 
+        %           != prices(end)-prices(1)
+
+% specify options for optimization        
+opt = optimset('display', 'off', 'TolX', 1e-18, 'TolFun', 1e-8);
+
+% optimization
+[bestParams expMSE] = fminsearch(errFun, params0, opt,...
+    daysSinceBeg, dax.prices(indS:indE));
+
+%%
+% Note: since the objective function, which shall be minimized,
+% also depends on the grid values of x and the given price vector
+% prices, these data has to be given as fixed input into the
+% optimization, since the optimization shall only be applied to
+% the parameter values. 
+% Therefore, the parameters of interest have to appear in the
+% objective function as one vector and as first input. Additional
+% inputs are included in the optimization routine fminsearch as
+% additional inputs at last positions. However, this syntax is
+% only allowed when the objective function is given as function
+% handle to an anonymous function. An example of a similiar
+% optimization task involving an already existing MATLAB function
+% will be given further below.
+
+% calculate associated exponential function values
+expVals = expFun(daysSinceBeg, bestParams);
+
+% include in given figure
+subplot(2, 1, 1);
+plot(dax.dates(indS+daysSinceBeg), expVals, 'r'); % Note: 
+        % dax.dates(indS) + daysSinceBeg does not work, since
+        % dax.dates is not numbered consecutively. dax.dates
+        % refers to business days, not consecutive days!
+xlabel('dates')
+ylabel('prices')
+
+subplot(2, 1, 2);
+plot(dax.dates(indS+daysSinceBeg), log(expVals), 'r'); shg
+xlabel('dates')
+ylabel('prices')
+
+% calculate mean squared error on logarithmic scale
+mse = sum((dax.logPrices(indS+daysSinceBeg)-log(expVals(:))).^2);
+
+% display mean squared error 
+fprintf(['\nThe mean squared error between the exponential fit'...
+        ' and\nthe stock price path is %3.4f.\n'], mse);
+
+%%
+% With the straight line as benchmark, one can see that the stock
+% price path exhibits a convex curvature during the subperiod.
+% This pattern indicates super-exponential growth rates. Such 
+% growth rates usually are associated with stock market bubbles.
+% Our intention now will be to identify evolving stock market
+% bubbles, and try to predict the time they burst.
+% According to Didier Sornette and his colleagues, stock market
+% bubbles can be approximated with super-exponentially growing 
+% log-periodic power law (LPPL) functions. These are 
+% super-exponentially growing functions with finite-time 
+% singularities and oscillating behaviour, given by the formula:
+% f(x) = a_1 + a_2*(a_3-x)^(a_4)*
+%       (1+a_5*cos(a_6*log(a_3-a_8*x)+a_7).
+% In order to get an impression about the appropriateness of a
+% LPPL function, we will fit it the subperiod and compare its
+% mean squared error to the error of a simple exponential
+% fucntion. Furthermore, we will examine whether the date of the
+% estimated finite-time singularity could be used as indicator of
+% a forthcoming change in regimes.
+
+
+% fit LPPL model to subperiod
+params = lpplFit(dax.logPrices(indS:indE));
+
+% calculate approximation values to stock prices
+[vals derivs] = lpplFunc(params);
+
+% create associated grid
+grid = dax.dates(indS + ( 1:(params(3)/params(8)-1) )); 
+    % Note: params(3)/params(8) denotes the time in business days
+    % from beginning of subperiod until finite-time singularity. 
+
+% include in given figure
+subplot(2, 1, 2);
+plot(grid, vals, 'g'); shg
+
+% include line for finite time singularity
+yLimits = get(gca, 'yLim');
+line(dax.dates(indS + floor(params(3)/params(8)) )*[1 1], yLimits,...
+    'Color', 'k')
+
+% calculate mean squared error on logarithmic scale
+mseLppl = sum( (dax.logPrices(indS + daysSinceBeg) -...
+    (vals(daysSinceBeg)')).^2);
+
+fprintf(['\nIn contrast to the MSE of ' num2str(mse) ...
+    ' obtained before,\n we now get a MSE of only '...
+    num2str(mseLppl) '.\n'])
+
+%% 
+% When looking at the figure, we can see that the fitted LPPL
+% model at the time of the end of the subperiod could indicates 
+% an impending regime change, since the critical point given by 
+% the finite-time singularity lies only days ahead.
+
+%%
+% In order to examine the validity of the LPPL model on further
+% stock market indices, you can uncomment the following lines of
+% code and interactively conduct experiments on historic data. As
+% examples of further accurate subperiod fitting, take a look at
+% Hang Seng index from 15-Dec-2004 to 21-Nov-2007, which 
+% leads to an estimated regime change 52 business days ahead, or
+% the German stock market index from 15-Oct-1992 to 29-Jul-1998.
+
+%% 
+% % Interactive examination of further stock market indices.
+% 
+% %tickerSyms = cell(8, 1);
+% tickerSyms = {'^GDAXI';'^SMSI';'^SSMI';...
+%     '^OMXSPI';'^NDX';'^DJI';'^HSI';'^SSEC'};
+% 
+% indexNames = {'DAX'; 'Madrid General';...
+%     'Swiss Market'; 'Stockholm General'; 'NASDAQ'; ...
+%     'Dow Jones Industrial'; 'Hang Seng';...
+%     'Shanghai Composite'};
+% 
+% for ii=1:numel(tickerSyms)
+%     fprintf(['\nIndex investigated: ' indexNames{ii} '\n'])
+%     data = hist_stock_data(begT, endT, tickerSyms{ii});
+%     
+%     if (~isempty(data))
+%        [data_dates data_prices] = processData(data);
+%        params = LPPLinteractively(data_prices, data_dates)
+%        title([indexNames{ii} ' REPLACE_WITH_DASH_DASH Press key to continue'])
+%        hold off
+%     end
+% 
+%     
+%     pause
+% end
+% 
+% %% Movie
+% 
+% frames = LPPLmovie(data_prices, data_dates, 50);
+% 
+% %%
+% movie(frames, 10, 2)
+% 
+
+
+
+
+
+
+
+
+##### SOURCE END #####
+--></body></html>

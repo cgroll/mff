@@ -1,0 +1,1753 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Introduction to MATLAB</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2013-08-25"><meta name="DC.source" content="matlab_script_1.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+
+  </style></head><body><div class="content"><h1>Introduction to MATLAB</h1><!--introduction--><p>Christian Groll</p><p>Seminar f&uuml;r Finanz&ouml;konometrie, Ludwig-Maximilians-Universit&auml;t M&uuml;nchen.</p><p>All rights reserved.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Numeric variables</a></li><li><a href="#17">Matrix Concatenation</a></li><li><a href="#25">Matrix calculation</a></li><li><a href="#30">Graphical output</a></li><li><a href="#32">Functions</a></li><li><a href="#40">For-loops and linearization</a></li><li><a href="#55">String variables</a></li><li><a href="#58">Cell variables</a></li><li><a href="#60">Structure variables</a></li></ul></div><p>The following script presents an introduction to basic MATLAB commands. It shows how different types of variables can be handled and manipulated in MATLAB, as well as how MATLAB can be used to produce graphical output.</p><h2>Numeric variables<a name="2"></a></h2><p>In MATLAB, an assignment of a certain value to a variable has to be implemented with an equality sign, where any expression on the right-hand side of the equality is assigned to the variable which is specified on the left-hand side. Variable names in MATLAB have to start with a letter, which can be followed by any number of letters, digits or underscores. Note that MATLAB is case sensitive, i.e. that lowercase and uppercase letters are distinguished.</p><pre class="codeinput"><span class="comment">% assign value 2 to a variable named x</span>
+x = 2
+</pre><pre class="codeoutput">
+x =
+
+     2
+
+</pre><p>You can also see the effect of the assignment in the workspace window. The column "value" now shows a 2 next to the entry x. The same syntax also can be used when the value of a given variable shall be assigned to another variable.</p><pre class="codeinput"><span class="comment">% assign value of variable x to variable b</span>
+b = x
+</pre><pre class="codeoutput">
+b =
+
+     2
+
+</pre><p>In order not to trigger an error, every variable on the right-hand side of an equality sign already has to possess a value.</p><pre class="codeinput"><span class="comment">% assignment with still undefined variable</span>
+<span class="keyword">try</span>
+    d = c
+<span class="keyword">catch</span> err
+    err.message
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">
+d = 
+
+    'abe'     'kdkdkd'    
+    [4535]    [3x3 double]
+
+</pre><p>While the first expression assigns the value of the variable x to the variable b, execution of the second expression will lead to an error, since the variable on the left-hand side is not yet defined. Leaving the error untreated would force MATLAB to stop the execution of the script, and throw an error message in red letters. In order to avoid an abortion, the error is treated with a try-catch construction at this point. To see the result of an untreated error, just uncomment the following line and execute the cell again.</p><pre class="codeinput"><span class="comment">% d = c</span>
+</pre><p>In order to assign a bundle of values to one variable, the values can be stored lined up horizontally or vertically, so that the containing variable becomes a vector. When values shall be lined up horizontally, MATLAB needs to know the index indicating the position of the value in the vector. Thereby the first position in a vector always gets index 1, contrary to 0 as in some other programming languages.</p><pre class="codeinput">x(2) = 4
+</pre><pre class="codeoutput">
+x =
+
+     2     4
+
+</pre><p>Assigning value 4 to the second position renders x into a 1x2 horizontal vector. To meet larger generality, it is best to interpret scalar values and vectors as special cases of the larger class of matrices right away. Hence, any assignment needs two indices to uniquely specify a position in a matrix.</p><pre class="codeinput">x(1,2) = 4
+</pre><pre class="codeoutput">
+x =
+
+     2     4
+
+</pre><p>Following the usual mathematical notation, the first index refers to the vertical position, and the second index to the horizontal position.</p><pre class="codeinput">x(2,1) = 3
+x(2,2) = 4
+</pre><pre class="codeoutput">
+x =
+
+     2     4
+     3     0
+
+
+x =
+
+     2     4
+     3     4
+
+</pre><p>Explained more precisely, the original assignment x = 2 actually performs two commands. First, the value 2 is assigned to the variable x. And second, the new value of the variable x is displayed in the command window.</p><p>In order to prevent MATLAB from displaying the new state of a variable, each assignment has to be equipped with a semicolon at its end. Hence, displaying the new value of a variable after an assignment can be seen as something like a default setting, which has to be denied explicitly when it is not wanted.</p><pre class="codeinput"><span class="comment">% the following assignment is not displayed</span>
+x(2,2) = 8;
+
+<span class="comment">% to query the new value, type the variable name</span>
+x
+</pre><pre class="codeoutput">
+x =
+
+     2     4
+     3     8
+
+</pre><p>Given that we assign a value outside of the already used rectangular of indices, the matrix is automatically increased to include the new index, while elements of the enlarged matrix without specified values are automatically filled with zeros.</p><pre class="codeinput">x(3,4) = 8
+</pre><pre class="codeoutput">
+x =
+
+     2     4     0     0
+     3     8     0     0
+     0     0     0     8
+
+</pre><p>Note that MATLAB is forced to automatically enlargen the matrix, since it can only work with numerical variables of rectangular shape. An example with occurring error in case of misspecified matrix shape will follow at the end of the next cell.</p><p>In order to simplify the assignment of a bunch of numbers, all matrix entries also can be assigned all at once. Be careful: the syntax in this case requires SQUARED brackets! Furthermore, the semicolons within the squared brackets tell MATLAB to assign the next values to positions one row further down.</p><pre class="codeinput"><span class="comment">% assigning multiple values at once</span>
+x = [1 2 0; 1 3 4; 2 2 2]
+</pre><pre class="codeoutput">
+x =
+
+     1     2     0
+     1     3     4
+     2     2     2
+
+</pre><p>Note: for clarity one can also use commas in order to better delimit individual entries within a row.</p><pre class="codeinput">x = [2, 3, 4; 1, 3, 1; 2, 2, 2]
+</pre><pre class="codeoutput">
+x =
+
+     2     3     4
+     1     3     1
+     2     2     2
+
+</pre><p>As already mentioned, unequal dimensions produce an error.</p><pre class="codeinput"><span class="keyword">try</span>
+    k = [2 2 2 2 2; 1 1; 4 4 4 4 4 4 4 4]
+<span class="keyword">catch</span> err
+    err.message
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">
+ans =
+
+Error using vertcat
+CAT arguments dimensions are not consistent.
+
+</pre><p>Once a variable has been initialized through value assignments, there are several ways to find out all its values or the value at any entry. The first way is to display the variable to the command window by simply typing its name. However, when dealing with large matrices, it is not convenient to let MATLAB display the complete matrix. A preferable way is to let MATLAB display only the entry required, which can be done by telling MATLAB the variable name associated with an index in square brackets.</p><pre class="codeinput"><span class="comment">% get value at row 1, column 2</span>
+x(1,2)
+</pre><pre class="codeoutput">
+ans =
+
+     3
+
+</pre><p>A different way to find out any value of a variable is to use the variable editor, which can be opened either by double-clicking the variable's name in the workspace, or by highlighting the variable's name, right-clicking and chosing "Open".</p><h2>Matrix Concatenation<a name="17"></a></h2><p>Since MATLAB originally was built on matrix calculations, MATLAB programs involve a lot of matrix manipulations. Therefore, MATLAB provides an auxiliary merging-operator, in order to facilitate merging and manipulation commands. This merging-operator is executed with squared brackets, and is able to horizontally or vertically concatenate matrices, which is the process of joining small matrices to make bigger ones. Strictly speaking, an assignment of multiple values at once is nothing else than horizontally and vertically glueing together scalar values.</p><pre class="codeinput"><span class="comment">% glueing together values 3 and 4 horizontally, assigning to c</span>
+c = [3 4]
+
+<span class="comment">% two ways to add additional row</span>
+d = [3 4; 2 3];
+d = [c; 2 3];
+
+<span class="comment">% glueing together block matrices</span>
+[[d; c] x]
+</pre><pre class="codeoutput">
+c =
+
+     3     4
+
+
+ans =
+
+     3     4     2     3     4
+     2     3     1     3     1
+     3     4     2     2     2
+
+</pre><p>In order to simplify code, some often used matrices can be accessed by calling existing functions.</p><pre class="codeinput"><span class="comment">% determine matrix size</span>
+m = 2;
+n = 3;
+
+<span class="comment">% create matrix containing ones</span>
+onesMatr = ones(m,n)
+
+<span class="comment">% create matrix containing zeros</span>
+zeroMatr = zeros(m,n)
+
+<span class="comment">% create matrix containing uniformly distributed random numbers</span>
+unifMatr = rand(m,n)
+</pre><pre class="codeoutput">
+onesMatr =
+
+     1     1     1
+     1     1     1
+
+
+zeroMatr =
+
+     0     0     0
+     0     0     0
+
+
+unifMatr =
+
+    0.1419    0.9157    0.9595
+    0.4218    0.7922    0.6557
+
+</pre><p>In addition, MATLAB has an operator to create numerical sequences with constant increments. This operator is called with three numbers and two colons.</p><pre class="codeinput"><span class="comment">% increments of size 2, starting at 1, ending at 11</span>
+1:2:11
+
+<span class="comment">% increments of size 5.5, starting at 14, ending at 40</span>
+14:5.5:40
+</pre><pre class="codeoutput">
+ans =
+
+     1     3     5     7     9    11
+
+
+ans =
+
+   14.0000   19.5000   25.0000   30.5000   36.0000
+
+</pre><p>In case of increments of size 1, one can also use the short notation involving only one colon together with a number specifying the starting value and a number specifying the ending value.</p><pre class="codeinput"><span class="comment">% increments of size 1, starting at 1, ending at 4</span>
+1:4
+</pre><pre class="codeoutput">
+ans =
+
+     1     2     3     4
+
+</pre><p>Both concatenation and the colon operator to create number sequences can be used to simultaneously retrieve information about matrix entries. The basic notation here is that a vector at the first entry in square brackets refers to all rows involved, while a vector at the second entry refers to all columns involved. In doing so, the set of all indices involved is given by the intersection of the specified rows and columns.</p><pre class="codeinput"><span class="comment">% display entries (1,3), (1,2) and (1,3) of x</span>
+[x(1,3) x(1,2) x(1,3)]
+
+<span class="comment">% same result, as intersection of row 1 with columns</span>
+x(1,[3 2 3])
+
+<span class="comment">% 2x2 upper block matrix</span>
+x([1 2],[1 2])
+
+<span class="comment">% using number sequence</span>
+x(1:2,1:2)
+</pre><pre class="codeoutput">
+ans =
+
+     4     3     4
+
+
+ans =
+
+     4     3     4
+
+
+ans =
+
+     2     3
+     1     3
+
+
+ans =
+
+     2     3
+     1     3
+
+</pre><p>In cases of unknown matrix size, the last element also can be accessed with replacement statement "end".</p><pre class="codeinput"><span class="comment">% display last two rows and last two columns</span>
+x(2:end,2:end)
+x(end-1:end,end-1:end)
+</pre><pre class="codeoutput">
+ans =
+
+     3     1
+     2     2
+
+
+ans =
+
+     3     1
+     2     2
+
+</pre><p>Using the colon operator without additional numbers denotes either a complete row or a complete column of a matrix.</p><pre class="codeinput"><span class="comment">% concatenate once the first and twice the third column of a</span>
+c = [x(:,1) x(:,3) x(:,3)];
+
+<span class="comment">% additionally append last row of x</span>
+c = [c; x(end,:)]
+</pre><pre class="codeoutput">
+c =
+
+     2     4     4
+     1     1     1
+     2     2     2
+     2     2     2
+
+</pre><p>The same syntax also can be utilized to delete complete columns or rows from a matrix. Just specify the desired horizontal or vertical line via the colon operator, and assign an empty matrix to it.</p><pre class="codeinput"><span class="comment">% delete third row</span>
+c(:,3) = []
+</pre><pre class="codeoutput">
+c =
+
+     2     4
+     1     1
+     2     2
+     2     2
+
+</pre><h2>Matrix calculation<a name="25"></a></h2><p>MATLAB is able to perform the standard operations on matrices.</p><pre class="codeinput"><span class="comment">% addition</span>
+x = [2 3; 4 2];
+b = [1; 2];
+bMatr = b(1:2,[1 1])
+c = x + bMatr
+
+<span class="comment">% subtraction</span>
+c = x - bMatr;
+</pre><pre class="codeoutput">
+bMatr =
+
+     1     1
+     2     2
+
+
+c =
+
+     3     4
+     6     4
+
+</pre><p>While addition and subtraction operate elementwise, matrix multiplication does not. Matrix multiplication is defined as scalar products of row and column vectors.</p><pre class="codeinput"><span class="comment">% multiplication of 2x2 matrix c with 2x1 vector b</span>
+matrProd1 = c*b
+matrProd2 = [c(1,1)*b(1)+c(1,2)*b(2); c(2,1)*b(1)+c(2,2)*b(2)]
+</pre><pre class="codeoutput">
+matrProd1 =
+
+     5
+     2
+
+
+matrProd2 =
+
+     5
+     2
+
+</pre><p>Matrix division is defined as inversion to matrix multiplication on square matrices.</p><pre class="codeinput">matrProd = x*c
+
+<span class="comment">% retrieve C by reversion</span>
+matrProd/c
+x
+
+<span class="comment">% this equals multiplication with inverse of c</span>
+matrProd*inv(c)
+</pre><pre class="codeoutput">
+matrProd =
+
+     8     4
+     8     8
+
+
+ans =
+
+     2     3
+     4     2
+
+
+x =
+
+     2     3
+     4     2
+
+
+ans =
+
+     2     3
+     4     2
+
+</pre><p>However, when working with MATLAB in statistical applications, we usually interpret matrices as tables of data. Hence, performing matrix operations on matrices might not be the most natural way to process numeric variables. For example, let nSold denote a vector containing the number of sold products on consecutive days, while prices denotes a vector which contains the average achieved price per sale. We want to get a vector profits of same length as nSold and prices, containing the profits for each day.</p><pre class="codeinput"><span class="comment">% initialize sale vector</span>
+nSold = [2 3 2 1]
+
+<span class="comment">% initialize price vector</span>
+prices = [2.3 2.4 2.3 2.0]
+
+<span class="comment">% notation for elementwise multiplication</span>
+profits = nSold.*prices
+</pre><pre class="codeoutput">
+nSold =
+
+     2     3     2     1
+
+
+prices =
+
+    2.3000    2.4000    2.3000    2.0000
+
+
+profits =
+
+    4.6000    7.2000    4.6000    2.0000
+
+</pre><p>While addition and subtraction are the same for arrays and matrices, element-by-element operations on arrays have to be called with a dot in front of the operator. This rule also applies to some additional operators. Hence, element-wise division is called by ./, while exponentiating can be conducted with the .^ operator. Together with the numeric sequence operator, element-wise operations are very useful to evaluating functions on certain values and creating tables. For example, say you would have to evaluate the function f(x)=3*x^2+7*x at values 1 to 10.</p><pre class="codeinput"><span class="comment">% init(ialize) grid for points that shall be evaluated</span>
+grid = 1:10;
+
+<span class="comment">% for each entry of grid, evaluate function per element-wise</span>
+<span class="comment">% operations</span>
+grid
+squared = grid.^2
+squaredScaled = 3*squared
+scaled = 7*grid
+vals = squaredScaled+scaled
+</pre><pre class="codeoutput">
+grid =
+
+     1     2     3     4     5     6     7     8     9    10
+
+
+squared =
+
+     1     4     9    16    25    36    49    64    81   100
+
+
+squaredScaled =
+
+     3    12    27    48    75   108   147   192   243   300
+
+
+scaled =
+
+     7    14    21    28    35    42    49    56    63    70
+
+
+vals =
+
+    10    26    48    76   110   150   196   248   306   370
+
+</pre><h2>Graphical output<a name="30"></a></h2><p>Whenever we need to visualize the graph of a function based on existing tabulated values, we have to draw a line through the calculated values, thereby interpolating the function in between. The interpolated values are determined by MATLAB itself, so that we only have to pass the tabulated values to MATLAB. One-dimensional functions usually are best visualized with the command plot, which draws a line through specified points. Since each point of the function is given by two coordinates (x- and y-value), the plot command also needs both dimensions as input.</p><pre class="codeinput"><span class="comment">% passing coordinates for each points to visualization function</span>
+plot(grid,vals)     <span class="comment">% vector of x-values, vector of y-values</span>
+</pre><img vspace="5" hspace="5" src="matlab_script_1_01.png" alt=""> <p>When using any graphical visualization command an additional window opens, which has to be understood as consisting of two parts. The first part is the figure window itself. This part, for example, contains information about the size of the window as well as about the reference number of the figure. The second part is an axes object, and can be seen as the white colored rectangle within the gray window. This axes object contains information about the used axes, where they begin and where they end, and where additional ticks are shown in between. Furthermore, labels of the ticks, fontsizes of the labels as well as coordinates for the exact positioning of the white rectangle inside of the gray rectangle are properties of the axes object. These properties can not be accessed directly, but have to be changed via methods performing on the object (get() and set()).</p><h2>Functions<a name="32"></a></h2><p>Besides the existing operators that can be used to data manipulation and calculation, MATLAB also includes functions that can be called. Usually, a call to a function requires some additional input handed over to the function and is associated with some output calculated by the function. For example, function exp() calculates the exponential function at a given value.</p><pre class="codeinput"><span class="comment">% calculate exponential function at point 3</span>
+exp(3)
+
+<span class="comment">% calculate log function at point 1</span>
+log(1)
+</pre><pre class="codeoutput">
+ans =
+
+   20.0855
+
+
+ans =
+
+     0
+
+</pre><p>As already outlined above, financial applications usually perform analysis on data, so that matrices rather have to be seen as arrays or tables of data, instead of as matrices expressing algebraic content. This way, element-wise operations become more accentuated, which is the reason that most built-in MATLAB functions accept matrices as input, where each entry will be processed by the function on its own. This way we can calculate more than one point of the exponential function at a time.</p><pre class="codeinput"><span class="comment">% init points where exp shall be evaluated</span>
+grid = -4:0.02:4;
+
+<span class="comment">% calculate associated function values</span>
+vals = exp(grid);
+</pre><p>Using function size, we can see that the dimensions of the output vals complies with the dimensions of the input vector. This is not surprising, since exactly one function value has to be calculated for each point given in the input vector.</p><pre class="codeinput"><span class="comment">% get size of input</span>
+inputSize = size(grid) <span class="comment">% first number: number of rows</span>
+
+<span class="comment">% get size of output</span>
+outputSize = size(vals)
+</pre><pre class="codeoutput">
+inputSize =
+
+     1   401
+
+
+outputSize =
+
+     1   401
+
+</pre><p>Now the exponential function can be visualized in the known way.</p><pre class="codeinput"><span class="comment">% visualize function values</span>
+plot(grid,vals)
+</pre><img vspace="5" hspace="5" src="matlab_script_1_02.png" alt=""> <p>As a first example for manipulation of the axes object, suppose we wanted to shrink the section of the x-values depicted, which equals zooming into the picture. In order to apply a method to an axes object, we first have to specify the exact object. In this case, it is possible to refer to the axes object as current axes, since it is the last axes object that we created. This is done by gca (get current axes).</p><pre class="codeinput"><span class="comment">% use method set() on current axes, change property x-limits</span>
+set(gca,<span class="string">'xLim'</span>,[-2 2])
+</pre><img vspace="5" hspace="5" src="matlab_script_1_03.png" alt=""> <p>Before we will conduct a first meaningful application, we now shortly want to deal with a main problem in computer based applications. Suppose you want to perform a certain manipulation on your data. How do you know, whether there already exists a MATLAB function performing this task, and if there was any, how would you find it? One way is to use the lookfor command. With it, you can search the MATLAB documentary for certain keywords. MATLAB then will search the first line of the help text of all functions on the search path for a certain keyword.</p><pre class="codeinput"><span class="comment">% find a function that performs permutation on vector elements</span>
+lookfor <span class="string">permutation</span>
+</pre><pre class="codeoutput">randperm                       - Random permutation.
+perms                          - All possible permutations.
+amd                            - Approximate minimum degree permutation.
+colamd                         - Column approximate minimum degree permutation.
+colperm                        - Column permutation.
+dmperm                         - Dulmage-Mendelsohn permutation.
+symamd                         - Symmetric approximate minimum degree permutation.
+symrcm                         - Symmetric reverse Cuthill-McKee permutation.
+create_permutations            - Creates a population of permutations.
+crossover_permutation          - Custom crossover function for traveling salesman.
+mutate_permutation             - Custom mutation function for traveling salesman.
+</pre><p>Another way would be to let MATLAB display all functions in a given category. For example, request all elementary matrices and matrix manipulation:</p><pre class="codeinput">help <span class="string">elmat</span>
+</pre><pre class="codeoutput">  Elementary matrices and matrix manipulation.
+ 
+  Elementary matrices.
+    zeros       - Zeros array.
+    ones        - Ones array.
+    eye         - Identity matrix.
+    repmat      - Replicate and tile array.
+    linspace    - Linearly spaced vector.
+    logspace    - Logarithmically spaced vector.
+    freqspace   - Frequency spacing for frequency response.
+    meshgrid    - X and Y arrays for 3-D plots.
+    accumarray  - Construct an array with accumulation.
+    :           - Regularly spaced vector and index into matrix.
+ 
+  Basic array information.
+    size        - Size of array.
+    length      - Length of vector.
+    ndims       - Number of dimensions.
+    numel       - Number of elements.
+    disp        - Display matrix or text.
+    isempty     - True for empty array.
+    isequal     - True if arrays are numerically equal.
+    isequaln    - True if arrays are numerically equal.
+    isequalwithequalnans - True if arrays are numerically equal.
+ 
+  Matrix manipulation.
+    cat         - Concatenate arrays.
+    reshape     - Reshape array.
+    diag        - Diagonal matrices and diagonals of matrix.
+    blkdiag     - Block diagonal concatenation.
+    tril        - Extract lower triangular part.
+    triu        - Extract upper triangular part.
+    fliplr      - Flip matrix in left/right direction.
+    flipud      - Flip matrix in up/down direction.
+    flipdim     - Flip matrix along specified dimension.
+    rot90       - Rotate matrix 90 degrees.
+    :           - Regularly spaced vector and index into matrix.
+    find        - Find indices of nonzero elements.
+    end         - Last index.
+    sub2ind     - Linear index from multiple subscripts.
+    ind2sub     - Multiple subscripts from linear index.
+    bsxfun      - Binary singleton expansion function.
+ 
+  Multi-dimensional array functions.
+    ndgrid      - Generate arrays for N-D functions and interpolation.
+    permute     - Permute array dimensions.
+    ipermute    - Inverse permute array dimensions.
+    shiftdim    - Shift dimensions.
+    circshift   - Shift array circularly.
+    squeeze     - Remove singleton dimensions.
+ 
+  Array utility functions.
+    isscalar    - True for scalar.
+    isvector    - True for vector.
+    isrow       - True for row vector.
+    iscolumn    - True for column vector.
+    ismatrix    - True for matrix.
+ 
+  Special variables and constants.
+    eps         - Floating point relative accuracy.
+    realmax     - Largest positive floating point number.
+    realmin     - Smallest positive floating point number.
+    intmax      - Largest positive integer value.
+    intmin      - Smallest integer value.
+    pi          - 3.1415926535897....
+    i           - Imaginary unit.
+    inf         - Infinity.
+    nan         - Not-a-Number.
+    isnan       - True for Not-a-Number.
+    isinf       - True for infinite elements.
+    isfinite    - True for finite elements.
+    j           - Imaginary unit.
+    why         - Succinct answer.
+ 
+  Specialized matrices.
+    compan      - Companion matrix.
+    gallery     - Test matrices.
+    hadamard    - Hadamard matrix.
+    hankel      - Hankel matrix.
+    hilb        - Hilbert matrix.
+    invhilb     - Inverse Hilbert matrix.
+    magic       - Magic square.
+    pascal      - Pascal matrix.
+    peaks       - A sample function of two variables.
+    rosser      - Classic symmetric eigenvalue test problem.
+    toeplitz    - Toeplitz matrix.
+    vander      - Vandermonde matrix.
+    wilkinson   - Wilkinson's eigenvalue test matrix.
+
+</pre><p>Other category names would be "specfun" for special functions and "elfun" for elementary functions. Of course, an additional and usually worthwhile option would be to simply type some keywords into Google's search engine.</p><h2>For-loops and linearization<a name="40"></a></h2><p>Now we want to plot the density function of a normal distribution. The formular for the density function is given by f(x)=(2*pi*sigma)^(-0.5)*exp(-0.5*((x-mu)^2/sigma)). In the course of this application we also introduce the syntax for loops in MATLAB, and show their performance with a different approach using simple matrix calculations. A loop executes a series of commands for a pre-specified number of iterations. However, any loop usually needs a running variable that changes at each iteration. For example, if you want to store the results of your code inside the loop, you would have to adapt the index of your storing variable, in order to not overwrite your results. The syntax of loops is rather simple. Just type "for" to indicate the beginning of a loop, choose a running variable and specify a vector of values which will be taken by the running variable.</p><pre class="codeinput"><span class="comment">% init params</span>
+mu = 2;
+sigma = 1.4;
+grid = -2:0.01:6;
+
+tic     <span class="comment">% start MATLAB's stopwatch to return processing time of</span>
+        <span class="comment">% for loop</span>
+<span class="keyword">for</span> ii=1:numel(grid)   <span class="comment">% Chronologically, for each point in grid.</span>
+                       <span class="comment">% numel() returns number of elements</span>
+    x = grid(ii);      <span class="comment">% current x-value for density evaluation</span>
+    y(ii) = (2*pi*sigma)^(-0.5)*exp(-0.5*((x-mu)^2/sigma));
+        <span class="comment">% adapt index of storing variable to avoid overwriting</span>
+<span class="keyword">end</span>     <span class="comment">% end of loop</span>
+time1 = toc;    <span class="comment">% get time required to execute code from tic to</span>
+                <span class="comment">% toc and store it in variable time1</span>
+</pre><p>While the code is very intuitive and simple, there are two main drawbacks with respect to performance. First, since you have not told MATLAB prior to the execution of the loop, how large your storing variable y will get, MATLAB will take any free space in its memory to store the variable y at the first run of the loop. However, since the required storage of y will increase during each loop, it could happen that y at some point will need more storage than what is available at the previously chosen location in its memory. In consequence, MATLAB would have to take all stored results in y and shift them to another and bigger place in its memory, which is rather time-consuming. Therefore, you always should tell MATLAB beforehand how large your storage variable will get. And secondly, since MATLAB is optimized for matrix calculations, you always have to try to linearize your code in order to avoid for loops. Here is an improved version of the code, using element-wise function evaluations on grid:</p><pre class="codeinput">tic
+y = (2*pi*sigma)^(-0.5) * exp(-0.5*(grid-mu).^2/sigma);
+time2 = toc;
+
+<span class="comment">% visualization to check for mistakes</span>
+plot(grid,y)
+
+<span class="comment">% calculate factor of performance improvement</span>
+factor = time1/time2;
+
+<span class="comment">% formatted output</span>
+fprintf(<span class="string">'\nSecond code is faster with factor %3.3f\n'</span>,factor);
+    <span class="comment">% \n stands for change to new line</span>
+    <span class="comment">% %3.3f is the format for the ouput of the variable inserted</span>
+</pre><pre class="codeoutput">
+Second code is faster with factor 89.381
+</pre><img vspace="5" hspace="5" src="matlab_script_1_04.png" alt=""> <p>Of course, such an important function is already implemented in MATLAB. Hence, the same results also can be obtained by</p><pre class="codeinput"><span class="comment">% y = normpdf(grid,mu,sigma);</span>
+</pre><p>In order to further highlight the importance of preallocation, we will try a second example.</p><pre class="codeinput">tic
+N = 10e3;
+x(1) = 1000;
+<span class="keyword">for</span> k=2:N
+    x(k) = 1.05*x(k-1);
+<span class="keyword">end</span>
+time1 = toc;
+
+tic
+N = 10e3;
+x = zeros(N,1);
+x(1) = 1000;
+<span class="keyword">for</span> k=2:N
+    x(k) = 1.05*x(k-1);
+<span class="keyword">end</span>
+time2 = toc;
+
+fprintf(<span class="string">'\nPart one takes %2.3d times longer.\n'</span>,time1/time2)
+</pre><pre class="codeoutput">
+Part one takes 1.061e+00 times longer.
+</pre><p>The same performance improvements also apply to the case of a two-dimensional normal distribution. However, we first introduce two further helpful operators in MATLAB. The first is the transpose operator, which forms the complex conjugate transpose of a matrix, i.e. it simply transposes matrices without complex part.</p><pre class="codeinput"><span class="comment">% init random matrix</span>
+x = rand(3)
+
+<span class="comment">% show transposition</span>
+transp = x'
+</pre><pre class="codeoutput">
+x =
+
+    0.0357    0.6787    0.3922
+    0.8491    0.7577    0.6555
+    0.9340    0.7431    0.1712
+
+
+transp =
+
+    0.0357    0.8491    0.9340
+    0.6787    0.7577    0.7431
+    0.3922    0.6555    0.1712
+
+</pre><p>The second operator is the vectorization operator. Applied to a matrix, it takes each column and attaches it at the bottom of the previous columns to get one large vector containing all entries of matrix a.</p><pre class="codeinput"><span class="comment">% vectorization, with subsequent transposition to keep displayed</span>
+<span class="comment">% output space-saving</span>
+x(:)'
+</pre><pre class="codeoutput">
+ans =
+
+  Columns 1 through 7
+
+    0.0357    0.8491    0.9340    0.6787    0.7577    0.7431    0.3922
+
+  Columns 8 through 9
+
+    0.6555    0.1712
+
+</pre><p>These operations will prove useful in the performance-improved encoding of the two-dimensional density. But first we will implement the more easy way using for loops.</p><pre class="codeinput"><span class="comment">% init params</span>
+mu = [4; 0];    <span class="comment">% vector containing both mean values</span>
+sigma = [1.5; 1];   <span class="comment">% vector containing both standard deviations</span>
+rho = 0.5;      <span class="comment">% correlation coefficient</span>
+
+<span class="comment">% init grid</span>
+grid = -4:0.1:8;    <span class="comment">% same grid will be used for both axes</span>
+
+<span class="comment">% start stopwatch</span>
+tic
+
+<span class="comment">% preallocate storage matrix for better performance results</span>
+z = zeros(numel(grid),numel(grid));
+xGrid = zeros(numel(grid),numel(grid)); <span class="comment">% since we want to plot</span>
+yGrid = zeros(numel(grid),numel(grid)); <span class="comment">% the results at the end,</span>
+            <span class="comment">% grid coordinates and density values have to be</span>
+            <span class="comment">% arranged in a matrix</span>
+
+
+<span class="comment">% calculate values: for each x value, run through all y values</span>
+<span class="keyword">for</span> ii=1:numel(grid) <span class="comment">% loop for x coordinate / row vector</span>
+    <span class="keyword">for</span> jj=1:numel(grid)    <span class="comment">% loop for y coordinate / column vec.</span>
+        xGrid(jj,ii) = grid(ii);
+        yGrid(jj,ii) = grid(jj);
+        x = grid(ii);
+        y = grid(jj);
+        z(jj,ii)=(2*pi*sigma(1)*sigma(2)*sqrt(1-rho^2))^(-1)*<span class="keyword">...</span>
+            exp(-(1/(2*(1-rho^2)))*<span class="keyword">...</span>
+            ((x-mu(1))^2/sigma(1)^2+(y-mu(2))^2/sigma(2)^2-<span class="keyword">...</span>
+            2*rho*(x-mu(1))*(y-mu(2))/sigma(1)/sigma(2)));
+            <span class="comment">% Note: when plotting a matrix, row vectors will</span>
+            <span class="comment">% appear in x-direction. Hence, the first for-loop</span>
+            <span class="comment">% here calculates the values along the x-direction,</span>
+            <span class="comment">% and the second along the y-direction.</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+time1 = toc;
+</pre><p>Vectorization for two-dimensional problems is quite more demanding than in the one-dimensional case. However, looking at the implemented for-loops in the cell above you can see that you implicitly evaluated the density on all possible two-dimensional combinations of the values in the grid vector. Using a simple example helps to illustrate this.</p><pre class="codeinput">exampleGrid = 1:3;
+storageVar = [];
+xGridExam = zeros(numel(exampleGrid)*[1 1]);
+yGridExam = zeros(numel(exampleGrid)*[1 1]);
+<span class="keyword">for</span> ii=1:numel(exampleGrid)
+    <span class="keyword">for</span> jj=1:numel(exampleGrid)
+        xGridExam(jj,ii) = exampleGrid(ii);
+        yGridExam(jj,ii) = exampleGrid(jj);
+        storageVar = [storageVar;<span class="keyword">...</span>
+            [exampleGrid(ii) exampleGrid(jj)]]; <span class="comment">% attaches each</span>
+                <span class="comment">% new point combination below the previous ones</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+storageVar
+xGridExam
+yGridExam
+</pre><pre class="codeoutput">
+storageVar =
+
+     1     1
+     1     2
+     1     3
+     2     1
+     2     2
+     2     3
+     3     1
+     3     2
+     3     3
+
+
+xGridExam =
+
+     1     2     3
+     1     2     3
+     1     2     3
+
+
+yGridExam =
+
+     1     1     1
+     2     2     2
+     3     3     3
+
+</pre><p>In effect this code does the following: it choses the value of the x-coordinate, holds it fixed, and runs through all y-coordinate values. Since in graphical outputs of matrices the x-axis is defined as the row dimension, the code evaluates column after column of the final density value matrix.</p><p>We now have to achieve a similar result without using for-loops. Lets first concentrate on the values of the x-coordinate matrix. In order to replicate this matrix, we just have to stick three times the original grid vector above each other. A very useful function for such a task is repmat, which stands for "replicate matrix", and allows you to form a block matrix consisting of smaller matrices which are replicates of a given matrix.</p><pre class="codeinput"><span class="comment">% example</span>
+x = [1 2; 3 4];
+
+<span class="comment">% 2 replicates of x above each other, 3 next to each other</span>
+repmat(x,2,3)
+</pre><pre class="codeoutput">
+ans =
+
+     1     2     1     2     1     2
+     3     4     3     4     3     4
+     1     2     1     2     1     2
+     3     4     3     4     3     4
+
+</pre><p>Hence, the coordinate matrices are obtained by</p><pre class="codeinput">xCoord = repmat(exampleGrid,3,1)
+yCoord = repmat(exampleGrid',1,3)
+</pre><pre class="codeoutput">
+xCoord =
+
+     1     2     3
+     1     2     3
+     1     2     3
+
+
+yCoord =
+
+     1     1     1
+     2     2     2
+     3     3     3
+
+</pre><p>Applying the same procedure to the original task:</p><pre class="codeinput"><span class="comment">% start stopwatch</span>
+tic
+
+<span class="comment">% create coordinate matrices</span>
+xGrid2 = repmat(grid,numel(grid),1);
+yGrid2 = repmat(grid',1,numel(grid));
+
+<span class="comment">% evaluate density elementwise on grid matrices</span>
+z2 = (2*pi*sigma(1)*sigma(2)*sqrt(1-rho^2))^(-1)*<span class="keyword">...</span>
+           exp(-(1/(2*(1-rho^2)))*<span class="keyword">...</span>
+           ((xGrid2-mu(1)).^2/sigma(1)^2+<span class="keyword">...</span>
+           (yGrid2-mu(2)).^2/sigma(2)^2-<span class="keyword">...</span>
+           2*rho*(xGrid2-mu(1)).*<span class="keyword">...</span>
+           (yGrid2-mu(2))/sigma(1)/sigma(2)));
+
+time2 = toc;
+
+<span class="comment">% calculate factor of performance improvement</span>
+factor = time1/time2;
+
+<span class="comment">% formatted output</span>
+fprintf(<span class="string">'\nSecond code is faster with factor %3.3f\n'</span>,factor);
+    <span class="comment">% \n stands for change to new line</span>
+    <span class="comment">% %3.3f is the format for the ouput of the variable inserted</span>
+</pre><pre class="codeoutput">
+Second code is faster with factor 79.817
+</pre><p>check for deviations of previous results</p><pre class="codeinput">deviations = [max(max(xGrid-xGrid2)),<span class="keyword">...</span>
+              max(max(yGrid-yGrid2)),<span class="keyword">...</span>
+              max(max(z-z2))]
+</pre><pre class="codeoutput">
+deviations =
+
+     0     0     0
+
+</pre><p>Of course, the bivariate density function also exists in MATLAB.</p><pre class="codeinput"><span class="comment">% calculate covariance matrix</span>
+covVar = [sigma(1)^2 rho*sigma(1)*sigma(2); <span class="keyword">...</span>
+            rho*sigma(1)*sigma(2) sigma(2)^2];
+
+<span class="comment">% using vectorized coordinates as input</span>
+z3 = mvnpdf([xGrid(:) yGrid(:)],mu',covVar);
+
+<span class="comment">% reshape result to comparable size</span>
+z3 = reshape(z3,size(xGrid));
+</pre><p>Visualization is obtained by using either mesh() or surf().</p><pre class="codeinput">mesh(xGrid,yGrid,z)
+xlabel([<span class="string">'x axis: mean value '</span> num2str(mu(1))])
+ylabel([<span class="string">'y axis: mean value '</span> num2str(mu(2))])
+title(<span class="string">'bivariate normal density'</span>)
+
+<span class="comment">% fit axes to grid points evaluated</span>
+set(gca,<span class="string">'xLim'</span>,[grid(1) grid(end)],<span class="string">'yLim'</span>,[grid(1) grid(end)])
+</pre><img vspace="5" hspace="5" src="matlab_script_1_05.png" alt=""> <h2>String variables<a name="55"></a></h2><p>String variables represent series of characters. In order to assign a string to a variable, the expression has to be enclosed with apostrophes. This way, MATLAB automatically defines the variable's type as string.</p><pre class="codeinput">s = <span class="string">'This is a string!'</span>
+</pre><pre class="codeoutput">
+s =
+
+This is a string!
+
+</pre><p>Strings also can be packed into a matrix. However, a string in a matrix has to be interpreted as an array of individual characters. Hence, in order to pack two strings into a matrix, the string dimensions have to match the same way as the dimensions of row vectors have to match in a matrix with numeric entries.</p><pre class="codeinput">s = [<span class="string">'abc'</span>;<span class="string">'cba'</span>]
+</pre><pre class="codeoutput">
+s =
+
+abc
+cba
+
+</pre><p>Using strings of different lengths produces an error.</p><pre class="codeinput"><span class="keyword">try</span>
+    t = [<span class="string">'abc'</span>; <span class="string">'abcd'</span>]
+<span class="keyword">catch</span> err
+    err.message
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">
+ans =
+
+Error using vertcat
+CAT arguments dimensions are not consistent.
+
+</pre><h2>Cell variables<a name="58"></a></h2><p>Cell arrays are used when variables of different types shall be stored in a single variable. For example, an entry in a cell array can contain a numeric value as well as a matrix with numeric entries. Furthermore, it can also obtain a string (an array of characters) or a structure variable. In contrast to the variable types so far, cell arrays are initialized using curled brackets!</p><pre class="codeinput">c = {<span class="string">'abe'</span>,<span class="string">'kdkdkd'</span>}
+
+c{2,1} = 4535
+
+x = [2 3 2; 1 2 2; 4 5 6];
+c{2,2} = x
+</pre><pre class="codeoutput">
+c = 
+
+    'abe'    'kdkdkd'
+
+
+c = 
+
+    'abe'     'kdkdkd'
+    [4535]          []
+
+
+c = 
+
+    'abe'     'kdkdkd'    
+    [4535]    [3x3 double]
+
+</pre><p>Imagine, you wanted to store historic stock prices in a cell array. Hence, you could fill one entry with a string variable containing the name of the stock, one entry with a matrix of numeric values containing the closing prices and one entry with a matrix containing associated dates. One problem when working with cell arrays is, that you always have to keep track about the arrangement of the different variables in the cell array yourself! This way, your code becomes more error prone, since you could accidentially mix up the entries, and overwrite the stock prices, while you only wanted to change the name of the stock. In order to improve the code with respect to this danger of confusions, MATLAB has come up with a way to store different data types, where the individual entries are not indexed with numbers, but with field names. Such variables are called structure variables.</p><h2>Structure variables<a name="60"></a></h2><p>When using structure variables, individual fields are addressed by simple name extensions to the name of the variable. Consider a structure variabe stock1 containing stock information.</p><pre class="codeinput">stock1.name = <span class="string">'BMW'</span>;
+
+stock1.dates = [<span class="string">'01.02.2001'</span>;<span class="string">'02.02.2001'</span>;<span class="string">'03.02.2001'</span>];
+
+stock1.prices = [112; 114; 111];
+
+stock1
+</pre><pre class="codeoutput">
+stock1 = 
+
+      name: 'BMW'
+     dates: [3x10 char]
+    prices: [3x1 double]
+
+</pre><p>In order to display the information of a structure variable, one has to use a similar syntax.</p><pre class="codeinput">stock1.dates
+</pre><pre class="codeoutput">
+ans =
+
+01.02.2001
+02.02.2001
+03.02.2001
+
+</pre><p>The same syntax also has to be used when information of a field shall be assigned to a new variable.</p><pre class="codeinput">dates = stock1.dates
+</pre><pre class="codeoutput">
+dates =
+
+01.02.2001
+02.02.2001
+03.02.2001
+
+</pre><p class="footer"><br>
+      Published with MATLAB&reg; 7.14<br></p></div><!--
+##### SOURCE BEGIN #####
+%% Introduction to MATLAB
+% Christian Groll
+%
+% Seminar für Finanzökonometrie, Ludwig-Maximilians-Universität 
+% München. 
+%
+% All rights reserved.
+
+%%
+% The following script presents an introduction to basic MATLAB
+% commands. It shows how different types of variables can be
+% handled and manipulated in MATLAB, as well as how MATLAB can 
+% be used to produce graphical output. 
+
+%% Numeric variables
+% In MATLAB, an assignment of a certain value to a variable has 
+% to be implemented with an equality sign, where any 
+% expression on the right-hand side of the equality is assigned 
+% to the variable which is specified on the left-hand side.
+% Variable names in MATLAB have to start with a letter, which 
+% can be followed by any number of letters, digits or
+% underscores. Note that MATLAB is case sensitive, i.e. that
+% lowercase and uppercase letters are distinguished.
+
+% assign value 2 to a variable named x
+x = 2
+
+
+%%
+% You can also see the effect of the assignment in the workspace
+% window. The column "value" now shows a 2 next to the entry x.
+% The same syntax also can be used when the value of a given
+% variable shall be assigned to another variable.
+
+% assign value of variable x to variable b
+b = x
+
+%%
+% In order not to trigger an error, every variable on the 
+% right-hand side of an equality sign already has to possess a 
+% value.
+
+% assignment with still undefined variable 
+try
+    d = c
+catch err
+    err.message
+end
+    
+%%
+% While the first expression assigns the value of the variable x
+% to the variable b, execution of the second expression will lead
+% to an error, since the variable on the left-hand side is not
+% yet defined. Leaving the error untreated would force MATLAB to 
+% stop the execution of the script, and throw an error message in
+% red letters. 
+% In order to avoid an abortion, the error is treated with a 
+% try-catch construction at this point. To see the result of an 
+% untreated error, just uncomment the following line and execute 
+% the cell again.
+
+% d = c
+
+%%
+% In order to assign a bundle of values to one variable, the
+% values can be stored lined up horizontally or vertically, so
+% that the containing variable becomes a vector. When values
+% shall be lined up horizontally, MATLAB needs to know the index
+% indicating the position of the value in the vector. Thereby the
+% first position in a vector always gets index 1, contrary to
+% 0 as in some other programming languages.
+
+x(2) = 4
+
+%%
+% Assigning value 4 to the second position renders x into a
+% 1x2 horizontal vector. 
+% To meet larger generality, it is best to interpret scalar 
+% values and vectors as special cases of the larger class of 
+% matrices right away. Hence, any assignment needs two indices 
+% to uniquely specify a position in a matrix.
+
+x(1,2) = 4
+
+%%
+% Following the usual mathematical notation, the first index 
+% refers to the vertical position, and the second index to the 
+% horizontal position. 
+
+x(2,1) = 3
+x(2,2) = 4
+
+%%
+% Explained more precisely, the original assignment x = 2 actually
+% performs two commands. First, the value 2 is assigned to the
+% variable x. And second, the new value of the variable x is displayed
+% in the command window.
+%
+% In order to prevent MATLAB from displaying the new state of a
+% variable, each assignment has to be equipped with a semicolon
+% at its end. Hence, displaying the new value of a variable after
+% an assignment can be seen as something like a default setting,
+% which has to be denied explicitly when it is not wanted.
+
+% the following assignment is not displayed
+x(2,2) = 8;
+
+% to query the new value, type the variable name
+x
+
+%%
+% Given that we assign a value outside of the already used 
+% rectangular of indices, the matrix is automatically increased
+% to include the new index, while elements of the enlarged matrix
+% without specified values are automatically filled with zeros.
+
+x(3,4) = 8
+
+%%
+% Note that MATLAB is forced to automatically enlargen the
+% matrix, since it can only work with numerical variables of
+% rectangular shape. An example with occurring error in case of
+% misspecified matrix shape will follow at the end of the next 
+% cell.
+
+%%
+% In order to simplify the assignment of a bunch of numbers, all
+% matrix entries also can be assigned all at once. Be careful:
+% the syntax in this case requires SQUARED brackets!
+% Furthermore, the semicolons within the squared brackets tell 
+% MATLAB to assign the next values to positions one row further
+% down. 
+
+% assigning multiple values at once
+x = [1 2 0; 1 3 4; 2 2 2]
+
+
+%%
+% Note: for clarity one can also use commas in order to better
+% delimit individual entries within a row.
+
+x = [2, 3, 4; 1, 3, 1; 2, 2, 2]
+
+%%
+% As already mentioned, unequal dimensions produce an error.
+
+try
+    k = [2 2 2 2 2; 1 1; 4 4 4 4 4 4 4 4]
+catch err
+    err.message
+end
+
+%%
+% Once a variable has been initialized through value assignments,
+% there are several ways to find out all its values or the value 
+% at any entry.
+% The first way is to display the variable to the command window 
+% by simply typing its name. However, when dealing with large 
+% matrices, it is not convenient to let MATLAB display the 
+% complete matrix. A preferable way is to let MATLAB display 
+% only the entry required, which can be done by telling MATLAB 
+% the variable name associated with an index in square brackets.
+
+% get value at row 1, column 2
+x(1,2)
+
+%%
+% A different way to find out any value of a variable is to use 
+% the variable editor, which can be opened either by 
+% double-clicking the variable's name in the workspace, or by 
+% highlighting the variable's name, right-clicking and chosing 
+% "Open".
+
+%% Matrix Concatenation
+% Since MATLAB originally was built on matrix calculations,
+% MATLAB programs involve a lot of matrix manipulations.
+% Therefore, MATLAB provides an auxiliary merging-operator, in
+% order to facilitate merging and manipulation commands. This
+% merging-operator is executed with squared brackets, and is able
+% to horizontally or vertically concatenate matrices, which is 
+% the process of joining small matrices to make bigger ones.
+% Strictly speaking, an assignment of multiple values at once is 
+% nothing else than horizontally and vertically glueing together 
+% scalar values.
+
+% glueing together values 3 and 4 horizontally, assigning to c
+c = [3 4]
+
+% two ways to add additional row
+d = [3 4; 2 3];
+d = [c; 2 3];
+
+% glueing together block matrices
+[[d; c] x]
+
+%%
+% In order to simplify code, some often used matrices can be 
+% accessed by calling existing functions.
+
+% determine matrix size
+m = 2;
+n = 3;
+
+% create matrix containing ones
+onesMatr = ones(m,n)
+
+% create matrix containing zeros
+zeroMatr = zeros(m,n)
+
+% create matrix containing uniformly distributed random numbers 
+unifMatr = rand(m,n)
+
+%%
+% In addition, MATLAB has an operator to create numerical
+% sequences with constant increments. This operator is called
+% with three numbers and two colons. 
+
+% increments of size 2, starting at 1, ending at 11
+1:2:11
+
+% increments of size 5.5, starting at 14, ending at 40
+14:5.5:40
+
+%%
+% In case of increments of size 1, one can also use the short
+% notation involving only one colon together with a number
+% specifying the starting value and a number specifying the
+% ending value.
+
+% increments of size 1, starting at 1, ending at 4
+1:4
+
+%%
+% Both concatenation and the colon operator to create number
+% sequences can be used to simultaneously retrieve information 
+% about matrix entries. The basic notation here is that a vector
+% at the first entry in square brackets refers to all rows
+% involved, while a vector at the second entry refers to all
+% columns involved. In doing so, the set of all indices involved 
+% is given by the intersection of the specified rows and columns.
+
+% display entries (1,3), (1,2) and (1,3) of x
+[x(1,3) x(1,2) x(1,3)]
+
+% same result, as intersection of row 1 with columns
+x(1,[3 2 3])
+
+% 2x2 upper block matrix
+x([1 2],[1 2])
+
+% using number sequence
+x(1:2,1:2)
+
+%%
+% In cases of unknown matrix size, the last element also can be
+% accessed with replacement statement "end".
+
+% display last two rows and last two columns
+x(2:end,2:end)
+x(end-1:end,end-1:end)
+
+%%
+% Using the colon operator without additional numbers denotes
+% either a complete row or a complete column of a matrix. 
+
+% concatenate once the first and twice the third column of a
+c = [x(:,1) x(:,3) x(:,3)];
+
+% additionally append last row of x
+c = [c; x(end,:)]
+
+%%
+% The same syntax also can be utilized to delete complete columns
+% or rows from a matrix. Just specify the desired horizontal or
+% vertical line via the colon operator, and assign an empty
+% matrix to it.
+
+% delete third row
+c(:,3) = []
+
+%% Matrix calculation
+% MATLAB is able to perform the standard operations on matrices.
+
+% addition
+x = [2 3; 4 2];
+b = [1; 2];
+bMatr = b(1:2,[1 1])
+c = x + bMatr
+
+% subtraction
+c = x - bMatr;
+
+%%
+% While addition and subtraction operate elementwise,
+% matrix multiplication does not. Matrix multiplication is
+% defined as scalar products of row and column vectors.
+
+% multiplication of 2x2 matrix c with 2x1 vector b
+matrProd1 = c*b
+matrProd2 = [c(1,1)*b(1)+c(1,2)*b(2); c(2,1)*b(1)+c(2,2)*b(2)]
+
+%%
+% Matrix division is defined as inversion to matrix
+% multiplication on square matrices.
+matrProd = x*c
+
+% retrieve C by reversion
+matrProd/c
+x
+
+% this equals multiplication with inverse of c
+matrProd*inv(c)
+
+%% 
+% However, when working with MATLAB in statistical applications, we
+% usually interpret matrices as tables of data. Hence, performing
+% matrix operations on matrices might not be the most natural way to
+% process numeric variables. For example, let nSold denote a vector
+% containing the number of sold products on consecutive days, while
+% prices denotes a vector which contains the average achieved price
+% per sale. We want to get a vector profits of same length as nSold
+% and prices, containing the profits for each day.
+
+% initialize sale vector
+nSold = [2 3 2 1]
+
+% initialize price vector
+prices = [2.3 2.4 2.3 2.0]
+
+% notation for elementwise multiplication
+profits = nSold.*prices
+
+%% 
+% While addition and subtraction are the same for arrays and
+% matrices, element-by-element operations on arrays have to be
+% called with a dot in front of the operator.
+% This rule also applies to some additional operators. Hence,
+% element-wise division is called by ./, while exponentiating can
+% be conducted with the .^ operator. Together with the numeric
+% sequence operator, element-wise operations are very useful to
+% evaluating functions on certain values and creating tables.
+% For example, say you would have to evaluate the function 
+% f(x)=3*x^2+7*x at values 1 to 10.
+
+% init(ialize) grid for points that shall be evaluated
+grid = 1:10;
+
+% for each entry of grid, evaluate function per element-wise
+% operations
+grid 
+squared = grid.^2
+squaredScaled = 3*squared
+scaled = 7*grid
+vals = squaredScaled+scaled
+
+
+%% Graphical output
+% Whenever we need to visualize the graph of a function based on 
+% existing tabulated values, we have to draw a line through the
+% calculated values, thereby interpolating the function in
+% between. The interpolated values are determined by MATLAB
+% itself, so that we only have to pass the tabulated values to 
+% MATLAB. One-dimensional functions usually are best visualized
+% with the command plot, which draws a line through specified
+% points. Since each point of the function is given by two
+% coordinates (x- and y-value), the plot command also needs both
+% dimensions as input.
+
+% passing coordinates for each points to visualization function
+plot(grid,vals)     % vector of x-values, vector of y-values
+
+%%
+% When using any graphical visualization command an additional
+% window opens, which has to be understood as consisting of two 
+% parts. The first part is the figure window itself. This part,
+% for example, contains information about the size of the window 
+% as well as about the reference number of the figure. The second
+% part is an axes object, and can be seen as the white colored
+% rectangle within the gray window. This axes object contains
+% information about the used axes, where they begin and where 
+% they end, and where additional ticks are shown in between.
+% Furthermore, labels of the ticks, fontsizes of the labels as
+% well as coordinates for the exact positioning of the white
+% rectangle inside of the gray rectangle are properties of the
+% axes object. These properties can not be accessed directly, 
+% but have to be changed via methods performing on the object 
+% (get() and set()).
+
+%% Functions
+% Besides the existing operators that can be used to data
+% manipulation and calculation, MATLAB also includes functions
+% that can be called. Usually, a call to a function requires some
+% additional input handed over to the function and is associated
+% with some output calculated by the function. For example,
+% function exp() calculates the exponential function at a given
+% value.
+
+% calculate exponential function at point 3
+exp(3)
+
+% calculate log function at point 1
+log(1)
+
+%% 
+% As already outlined above, financial applications usually 
+% perform analysis on data, so that matrices rather have to be 
+% seen as arrays or tables of data, instead of as matrices 
+% expressing algebraic content. This way, element-wise operations
+% become more accentuated, which is the reason that most built-in
+% MATLAB functions accept matrices as input, where each entry
+% will be processed by the function on its own. This way we can
+% calculate more than one point of the exponential function at a
+% time.
+
+% init points where exp shall be evaluated
+grid = -4:0.02:4;
+
+% calculate associated function values
+vals = exp(grid);
+
+%%
+% Using function size, we can see that the dimensions of the
+% output vals complies with the dimensions of the input vector.
+% This is not surprising, since exactly one function value has to
+% be calculated for each point given in the input vector.
+
+% get size of input
+inputSize = size(grid) % first number: number of rows
+
+% get size of output
+outputSize = size(vals)
+
+%% 
+% Now the exponential function can be visualized in the known
+% way.
+
+% visualize function values
+plot(grid,vals)
+
+%%
+% As a first example for manipulation of the axes object, suppose we
+% wanted to shrink the section of the x-values depicted, which equals
+% zooming into the picture. In order to apply a method to an axes
+% object, we first have to specify the exact object. In this case, it
+% is possible to refer to the axes object as current axes, since it is
+% the last axes object that we created. This is done by gca (get
+% current axes).
+
+% use method set() on current axes, change property x-limits
+set(gca,'xLim',[-2 2])
+
+%%
+% Before we will conduct a first meaningful application, we now
+% shortly want to deal with a main problem in computer based
+% applications. Suppose you want to perform a certain
+% manipulation on your data. How do you know, whether there
+% already exists a MATLAB function performing this task, and if
+% there was any, how would you find it?
+% One way is to use the lookfor command. With it, you can search
+% the MATLAB documentary for certain keywords. MATLAB then will
+% search the first line of the help text of all functions on the
+% search path for a certain keyword.
+
+% find a function that performs permutation on vector elements
+lookfor permutation
+
+%% 
+% Another way would be to let MATLAB display all functions in a
+% given category. For example, request all elementary matrices
+% and matrix manipulation:
+
+help elmat
+
+%%
+% Other category names would be "specfun" for special functions
+% and "elfun" for elementary functions.
+% Of course, an additional and usually worthwhile option would be
+% to simply type some keywords into Google's search engine.
+
+%% For-loops and linearization
+% Now we want to plot the density function of a normal 
+% distribution. The formular for the density function is given by
+% f(x)=(2*pi*sigma)^(-0.5)*exp(-0.5*((x-mu)^2/sigma)). In the
+% course of this application we also introduce the syntax for
+% loops in MATLAB, and show their performance with a different
+% approach using simple matrix calculations.
+% A loop executes a series of commands for a pre-specified number
+% of iterations. However, any loop usually needs a running
+% variable that changes at each iteration. For example, if you
+% want to store the results of your code inside the loop, you
+% would have to adapt the index of your storing variable, in
+% order to not overwrite your results.
+% The syntax of loops is rather simple. Just type "for" to
+% indicate the beginning of a loop, choose a running variable and
+% specify a vector of values which will be taken by the running
+% variable.
+
+
+% init params
+mu = 2;
+sigma = 1.4;
+grid = -2:0.01:6;
+
+tic     % start MATLAB's stopwatch to return processing time of
+        % for loop
+for ii=1:numel(grid)   % Chronologically, for each point in grid.
+                       % numel() returns number of elements
+    x = grid(ii);      % current x-value for density evaluation
+    y(ii) = (2*pi*sigma)^(-0.5)*exp(-0.5*((x-mu)^2/sigma));
+        % adapt index of storing variable to avoid overwriting
+end     % end of loop
+time1 = toc;    % get time required to execute code from tic to 
+                % toc and store it in variable time1
+                
+                
+%% 
+% While the code is very intuitive and simple, there are two main
+% drawbacks with respect to performance.
+% First, since you have not told MATLAB prior to the execution of
+% the loop, how large your storing variable y will get, MATLAB
+% will take any free space in its memory to store the variable y
+% at the first run of the loop. However, since the required
+% storage of y will increase during each loop, it could happen
+% that y at some point will need more storage than what is 
+% available at the previously chosen location in its memory. In
+% consequence, MATLAB would have to take all stored results in y
+% and shift them to another and bigger place in its memory, which
+% is rather time-consuming. Therefore, you always should tell
+% MATLAB beforehand how large your storage variable will get.
+% And secondly, since MATLAB is optimized for matrix
+% calculations, you always have to try to linearize your code in
+% order to avoid for loops. Here is an improved version of the
+% code, using element-wise function evaluations on grid:
+
+tic
+y = (2*pi*sigma)^(-0.5) * exp(-0.5*(grid-mu).^2/sigma);
+time2 = toc;
+
+% visualization to check for mistakes
+plot(grid,y)
+
+% calculate factor of performance improvement
+factor = time1/time2;
+
+% formatted output
+fprintf('\nSecond code is faster with factor %3.3f\n',factor);
+    % \n stands for change to new line 
+    % %3.3f is the format for the ouput of the variable inserted
+
+%% 
+% Of course, such an important function is already implemented in
+% MATLAB. Hence, the same results also can be obtained by
+
+% y = normpdf(grid,mu,sigma);
+
+%% 
+% In order to further highlight the importance of preallocation,
+% we will try a second example.
+
+tic
+N = 10e3;
+x(1) = 1000;
+for k=2:N
+    x(k) = 1.05*x(k-1);
+end
+time1 = toc;
+
+tic
+N = 10e3;
+x = zeros(N,1);
+x(1) = 1000;
+for k=2:N
+    x(k) = 1.05*x(k-1);
+end
+time2 = toc;
+
+fprintf('\nPart one takes %2.3d times longer.\n',time1/time2)
+
+%%
+% The same performance improvements also apply to the case of a
+% two-dimensional normal distribution. However, we first
+% introduce two further helpful operators in MATLAB. The first is
+% the transpose operator, which forms the complex conjugate
+% transpose of a matrix, i.e. it simply transposes matrices
+% without complex part.
+
+% init random matrix
+x = rand(3)
+
+% show transposition
+transp = x'
+
+%%
+% The second operator is the vectorization operator. Applied to a
+% matrix, it takes each column and attaches it at the bottom of
+% the previous columns to get one large vector containing all
+% entries of matrix a.
+
+% vectorization, with subsequent transposition to keep displayed 
+% output space-saving
+x(:)'
+
+%%
+% These operations will prove useful in the performance-improved
+% encoding of the two-dimensional density. But first we will
+% implement the more easy way using for loops.
+
+% init params
+mu = [4; 0];    % vector containing both mean values
+sigma = [1.5; 1];   % vector containing both standard deviations
+rho = 0.5;      % correlation coefficient
+
+% init grid
+grid = -4:0.1:8;    % same grid will be used for both axes
+
+% start stopwatch
+tic
+
+% preallocate storage matrix for better performance results
+z = zeros(numel(grid),numel(grid));
+xGrid = zeros(numel(grid),numel(grid)); % since we want to plot
+yGrid = zeros(numel(grid),numel(grid)); % the results at the end,
+            % grid coordinates and density values have to be
+            % arranged in a matrix
+
+
+% calculate values: for each x value, run through all y values
+for ii=1:numel(grid) % loop for x coordinate / row vector
+    for jj=1:numel(grid)    % loop for y coordinate / column vec.
+        xGrid(jj,ii) = grid(ii);
+        yGrid(jj,ii) = grid(jj);
+        x = grid(ii);
+        y = grid(jj);
+        z(jj,ii)=(2*pi*sigma(1)*sigma(2)*sqrt(1-rho^2))^(-1)*...
+            exp(-(1/(2*(1-rho^2)))*...
+            ((x-mu(1))^2/sigma(1)^2+(y-mu(2))^2/sigma(2)^2-...
+            2*rho*(x-mu(1))*(y-mu(2))/sigma(1)/sigma(2)));
+            % Note: when plotting a matrix, row vectors will
+            % appear in x-direction. Hence, the first for-loop
+            % here calculates the values along the x-direction,
+            % and the second along the y-direction.
+    end
+end
+time1 = toc;
+
+%%
+% Vectorization for two-dimensional problems is quite more
+% demanding than in the one-dimensional case. However, looking at
+% the implemented for-loops in the cell above you can see that 
+% you implicitly evaluated the density on all possible
+% two-dimensional combinations of the values in the grid vector.
+% Using a simple example helps to illustrate this.
+
+exampleGrid = 1:3;
+storageVar = [];
+xGridExam = zeros(numel(exampleGrid)*[1 1]);
+yGridExam = zeros(numel(exampleGrid)*[1 1]);
+for ii=1:numel(exampleGrid)
+    for jj=1:numel(exampleGrid)
+        xGridExam(jj,ii) = exampleGrid(ii);
+        yGridExam(jj,ii) = exampleGrid(jj);
+        storageVar = [storageVar;...
+            [exampleGrid(ii) exampleGrid(jj)]]; % attaches each 
+                % new point combination below the previous ones
+    end
+end
+storageVar
+xGridExam
+yGridExam
+
+%% 
+% In effect this code does the following: it choses the value of 
+% the x-coordinate, holds it fixed, and runs through all 
+% y-coordinate values.
+% Since in graphical outputs of matrices the x-axis is defined as
+% the row dimension, the code evaluates column after column of
+% the final density value matrix.
+
+%%
+% We now have to achieve a similar result without using 
+% for-loops. Lets first concentrate on the values of the
+% x-coordinate matrix. In order to replicate this matrix, we just
+% have to stick three times the original grid vector above each
+% other. A very useful function for such a task is repmat, which
+% stands for "replicate matrix", and allows you to form a block
+% matrix consisting of smaller matrices which are replicates of a
+% given matrix.
+
+% example
+x = [1 2; 3 4];
+
+% 2 replicates of x above each other, 3 next to each other
+repmat(x,2,3)
+
+%% 
+% Hence, the coordinate matrices are obtained by
+xCoord = repmat(exampleGrid,3,1)
+yCoord = repmat(exampleGrid',1,3)
+
+
+%%
+% Applying the same procedure to the original task:
+
+% start stopwatch
+tic
+
+% create coordinate matrices
+xGrid2 = repmat(grid,numel(grid),1);
+yGrid2 = repmat(grid',1,numel(grid));
+
+% evaluate density elementwise on grid matrices
+z2 = (2*pi*sigma(1)*sigma(2)*sqrt(1-rho^2))^(-1)*...
+           exp(-(1/(2*(1-rho^2)))*...
+           ((xGrid2-mu(1)).^2/sigma(1)^2+...
+           (yGrid2-mu(2)).^2/sigma(2)^2-...
+           2*rho*(xGrid2-mu(1)).*...
+           (yGrid2-mu(2))/sigma(1)/sigma(2)));
+       
+time2 = toc;       
+
+% calculate factor of performance improvement
+factor = time1/time2;
+
+% formatted output
+fprintf('\nSecond code is faster with factor %3.3f\n',factor);
+    % \n stands for change to new line 
+    % %3.3f is the format for the ouput of the variable inserted
+       
+%%
+% check for deviations of previous results
+deviations = [max(max(xGrid-xGrid2)),...
+              max(max(yGrid-yGrid2)),...
+              max(max(z-z2))]
+       
+%%
+% Of course, the bivariate density function also exists in
+% MATLAB.
+
+% calculate covariance matrix
+covVar = [sigma(1)^2 rho*sigma(1)*sigma(2); ...
+            rho*sigma(1)*sigma(2) sigma(2)^2];
+        
+% using vectorized coordinates as input        
+z3 = mvnpdf([xGrid(:) yGrid(:)],mu',covVar);
+   
+% reshape result to comparable size
+z3 = reshape(z3,size(xGrid));
+
+%%
+% Visualization is obtained by using either mesh() or surf().
+mesh(xGrid,yGrid,z)
+xlabel(['x axis: mean value ' num2str(mu(1))])
+ylabel(['y axis: mean value ' num2str(mu(2))])
+title('bivariate normal density')
+
+% fit axes to grid points evaluated
+set(gca,'xLim',[grid(1) grid(end)],'yLim',[grid(1) grid(end)])
+    
+%% String variables
+% String variables represent series of characters. In order to
+% assign a string to a variable, the expression has to be
+% enclosed with apostrophes. This way, MATLAB automatically
+% defines the variable's type as string.
+
+s = 'This is a string!'
+
+%%
+% Strings also can be packed into a matrix. However, a string in
+% a matrix has to be interpreted as an array of individual
+% characters. Hence, in order to pack two strings into a matrix,
+% the string dimensions have to match the same way as the
+% dimensions of row vectors have to match in a matrix with
+% numeric entries.
+
+s = ['abc';'cba']
+
+%%
+% Using strings of different lengths produces an error.
+
+try
+    t = ['abc'; 'abcd']
+catch err
+    err.message
+end
+
+%% Cell variables
+% Cell arrays are used when variables of different types shall be
+% stored in a single variable. For example, an entry in a cell 
+% array can contain a numeric value as well as a matrix with 
+% numeric entries. Furthermore, it can also obtain a string (an
+% array of characters) or a structure variable. In contrast to
+% the variable types so far, cell arrays are initialized using
+% curled brackets!
+
+c = {'abe','kdkdkd'}
+
+c{2,1} = 4535
+
+x = [2 3 2; 1 2 2; 4 5 6];
+c{2,2} = x
+
+%%
+% Imagine, you wanted to store historic stock prices in a cell
+% array. Hence, you could fill one entry with a string variable
+% containing the name of the stock, one entry with a matrix of
+% numeric values containing the closing prices and one entry with
+% a matrix containing associated dates. One problem when working
+% with cell arrays is, that you always have to keep track
+% about the arrangement of the different variables in the cell
+% array yourself! This way, your code becomes more error prone,
+% since you could accidentially mix up the entries, and overwrite
+% the stock prices, while you only wanted to change the name of
+% the stock. 
+% In order to improve the code with respect to this danger of
+% confusions, MATLAB has come up with a way to store different
+% data types, where the individual entries are not indexed with
+% numbers, but with field names. Such variables are called
+% structure variables.
+
+%% Structure variables
+% When using structure variables, individual fields are addressed
+% by simple name extensions to the name of the variable.
+% Consider a structure variabe stock1 containing stock 
+% information.
+
+stock1.name = 'BMW';
+
+stock1.dates = ['01.02.2001';'02.02.2001';'03.02.2001'];
+
+stock1.prices = [112; 114; 111];
+
+stock1
+
+%%
+% In order to display the information of a structure variable,
+% one has to use a similar syntax.
+
+stock1.dates
+
+%%
+% The same syntax also has to be used when information of a field
+% shall be assigned to a new variable. 
+
+dates = stock1.dates
+
+
+
+
+
+
+##### SOURCE END #####
+--></body></html>
