@@ -63,3 +63,9 @@ cd
 % right-click on project folder
 % -> Add to path
 % -> Selected folders and subfolders
+
+%% Further interesting topics
+% - Quandl
+% - Dataset / Table
+% - Unit testing
+% - git
