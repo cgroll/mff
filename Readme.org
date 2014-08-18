@@ -6,5 +6,5 @@ course MATLAB for finance of the Ludwig-Maximilians-University Munich.
 You can access the readily rendered html MATLAB scripts at
 [[http://htmlpreview.github.io/]]: 
 - [[http://htmlpreview.github.io/?https://github.com/cgroll/mff/blob/master/matlab_for_finance_files/html/matlab_script_1.html][script1]]
-- [[https://github.com/cgroll/mff/blob/master/matlab_for_finance_files/html/matlab_script_2.html][script2]]
-- [[https://github.com/cgroll/mff/blob/master/matlab_for_finance_files/html/matlab_script_3.html][script3]]
+- [[http://htmlpreview.github.io/?https://github.com/cgroll/mff/blob/master/matlab_for_finance_files/html/matlab_script_2.html][script2]]
+- [[http://htmlpreview.github.io/?https://github.com/cgroll/mff/blob/master/matlab_for_finance_files/html/matlab_script_3.html][script3]]
