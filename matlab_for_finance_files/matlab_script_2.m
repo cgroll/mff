@@ -271,6 +271,11 @@ find(matr>=20)     % automatically returns all indices with logical
                 % value one
 find(matr>=20, 1)   % returns only first index with logical value one
 
+%% Exercises: logical indexing
+% In order to deepen your understanding of logical indexing, you now
+% should try yourself at the logical indexing assignment at the
+% coursework homepage on https://coursework.mathworks.com.
+
 %%
 % Returning to the original intention to highlight the maximum
 % price value, this gives
@@ -545,7 +550,7 @@ fprintf(['\nThe new minimum now is %2i, which seems to be\n'...
 % increasing points in time, we make use of the function
 % processData(). Also, string dates are converted to serial 
 % dates, and the already used data of the German stock index is
-% included.
+% included. However, keep in mind that elimination of dates with at least one missing observation is only one possible way to process data. For a more elaborate overview over different ways to deal with missing observations see http://grollchristian.wordpress.com/2014/08/13/missing-data/. Also, keep in mind that there are usually several concepts of "missingness", and MATLAB only has implemented NaN.
 
 tic
 [daxDates daxPrices] = processData([daxComp daxCrude]);
