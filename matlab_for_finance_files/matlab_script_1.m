@@ -1,8 +1,8 @@
 %% Introduction to MATLAB
 % Christian Groll
 %
-% Seminar für Finanzökonometrie, Ludwig-Maximilians-Universität 
-% München. 
+% Chair of financial econometrics, Ludwig-Maximilians-University 
+% Munich. 
 %
 % All rights reserved.
 
