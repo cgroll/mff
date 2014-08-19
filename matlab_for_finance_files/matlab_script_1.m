@@ -1,7 +1,7 @@
 %% Introduction to MATLAB
 % Christian Groll
 %
-% Chair of financial econometrics, Ludwig-Maximilians-University 
+% Chair of Financial Econometrics, Ludwig-Maximilians-University 
 % Munich. 
 %
 % All rights reserved.
@@ -843,7 +843,37 @@ stock1.dates
 
 dates = stock1.dates
 
+%% Tables
+% Since version R2013b Matlab also has a data structure similar to
+% DataFrames in R. These tables allow to store data of mixed types, the
+% only restriction being that all columns need to be of equal length.
+% For the advantages of tables take a look at the online documentation at
+% http://www.mathworks.de/de/help/matlab/matlab_prog/advantages-of-using-tables.html 
 
+load patients
+
+patientTable = table(Gender,Age,Smoker,Diastolic);
+
+% get subset of data as table
+subTable = patientTable(:, 1:2);
+
+% get subset of data as matrix
+valuesThemself = patientTable{:, 2:4};
+
+% get invalid subset of data
+try
+    invalidData = patientTable{:, 1:2}
+catch err
+    err.message
+end
+
+%% Tables: logical indexing for tables
+
+% still to come
+
+%% mathematical functions
+% could corrupt logical data: all patients become smokers
+patientTable{:, 2:4} = patientTable{:, 2:4} + 3000
 
 
 
