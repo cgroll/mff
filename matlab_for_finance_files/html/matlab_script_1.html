@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Introduction to MATLAB</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2013-08-25"><meta name="DC.source" content="matlab_script_1.m"><style type="text/css">
+      --><title>Introduction to MATLAB</title><meta name="generator" content="MATLAB 8.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-08-19"><meta name="DC.source" content="matlab_script_1.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -54,8 +54,18 @@ span.syscmd { color:#B28C00 }
 
 .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
 .footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
 
-  </style></head><body><div class="content"><h1>Introduction to MATLAB</h1><!--introduction--><p>Christian Groll</p><p>Seminar f&uuml;r Finanz&ouml;konometrie, Ludwig-Maximilians-Universit&auml;t M&uuml;nchen.</p><p>All rights reserved.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Numeric variables</a></li><li><a href="#17">Matrix Concatenation</a></li><li><a href="#25">Matrix calculation</a></li><li><a href="#30">Graphical output</a></li><li><a href="#32">Functions</a></li><li><a href="#40">For-loops and linearization</a></li><li><a href="#55">String variables</a></li><li><a href="#58">Cell variables</a></li><li><a href="#60">Structure variables</a></li></ul></div><p>The following script presents an introduction to basic MATLAB commands. It shows how different types of variables can be handled and manipulated in MATLAB, as well as how MATLAB can be used to produce graphical output.</p><h2>Numeric variables<a name="2"></a></h2><p>In MATLAB, an assignment of a certain value to a variable has to be implemented with an equality sign, where any expression on the right-hand side of the equality is assigned to the variable which is specified on the left-hand side. Variable names in MATLAB have to start with a letter, which can be followed by any number of letters, digits or underscores. Note that MATLAB is case sensitive, i.e. that lowercase and uppercase letters are distinguished.</p><pre class="codeinput"><span class="comment">% assign value 2 to a variable named x</span>
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Introduction to MATLAB</h1><!--introduction--><p>Christian Groll</p><p>Chair of financial econometrics, Ludwig-Maximilians-University Munich.</p><p>All rights reserved.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Numeric variables</a></li><li><a href="#17">Matrix Concatenation</a></li><li><a href="#25">Matrix calculation</a></li><li><a href="#30">Graphical output</a></li><li><a href="#32">Functions</a></li><li><a href="#40">For-loops and linearization</a></li><li><a href="#55">String variables</a></li><li><a href="#58">Cell variables</a></li><li><a href="#60">Structure variables</a></li></ul></div><p>The following script presents an introduction to basic MATLAB commands. It shows how different types of variables can be handled and manipulated in MATLAB, as well as how MATLAB can be used to produce graphical output.</p><h2>Numeric variables<a name="2"></a></h2><p>In MATLAB, an assignment of a certain value to a variable has to be implemented with an equality sign, where any expression on the right-hand side of the equality is assigned to the variable which is specified on the left-hand side. Variable names in MATLAB have to start with a letter, which can be followed by any number of letters, digits or underscores. Note that MATLAB is case sensitive, i.e. that lowercase and uppercase letters are distinguished.</p><pre class="codeinput"><span class="comment">% assign value 2 to a variable named x</span>
 x = 2
 </pre><pre class="codeoutput">
 x =
@@ -76,10 +86,9 @@ b =
     err.message
 <span class="keyword">end</span>
 </pre><pre class="codeoutput">
-d = 
+ans =
 
-    'abe'     'kdkdkd'    
-    [4535]    [3x3 double]
+Undefined function or variable 'c'.
 
 </pre><p>While the first expression assigns the value of the variable x to the variable b, execution of the second expression will lead to an error, since the variable on the left-hand side is not yet defined. Leaving the error untreated would force MATLAB to stop the execution of the script, and throw an error message in red letters. In order to avoid an abortion, the error is treated with a try-catch construction at this point. To see the result of an untreated error, just uncomment the following line and execute the cell again.</p><pre class="codeinput"><span class="comment">% d = c</span>
 </pre><p>In order to assign a bundle of values to one variable, the values can be stored lined up horizontally or vertically, so that the containing variable becomes a vector. When values shall be lined up horizontally, MATLAB needs to know the index indicating the position of the value in the vector. Thereby the first position in a vector always gets index 1, contrary to 0 as in some other programming languages.</p><pre class="codeinput">x(2) = 4
@@ -153,7 +162,7 @@ x =
 ans =
 
 Error using vertcat
-CAT arguments dimensions are not consistent.
+Dimensions of matrices being concatenated are not consistent.
 
 </pre><p>Once a variable has been initialized through value assignments, there are several ways to find out all its values or the value at any entry. The first way is to display the variable to the command window by simply typing its name. However, when dealing with large matrices, it is not convenient to let MATLAB display the complete matrix. A preferable way is to let MATLAB display only the entry required, which can be done by telling MATLAB the variable name associated with an index in square brackets.</p><pre class="codeinput"><span class="comment">% get value at row 1, column 2</span>
 x(1,2)
@@ -475,16 +484,13 @@ set(gca,<span class="string">'xLim'</span>,[-2 2])
 </pre><img vspace="5" hspace="5" src="matlab_script_1_03.png" alt=""> <p>Before we will conduct a first meaningful application, we now shortly want to deal with a main problem in computer based applications. Suppose you want to perform a certain manipulation on your data. How do you know, whether there already exists a MATLAB function performing this task, and if there was any, how would you find it? One way is to use the lookfor command. With it, you can search the MATLAB documentary for certain keywords. MATLAB then will search the first line of the help text of all functions on the search path for a certain keyword.</p><pre class="codeinput"><span class="comment">% find a function that performs permutation on vector elements</span>
 lookfor <span class="string">permutation</span>
 </pre><pre class="codeoutput">randperm                       - Random permutation.
-perms                          - All possible permutations.
 amd                            - Approximate minimum degree permutation.
 colamd                         - Column approximate minimum degree permutation.
 colperm                        - Column permutation.
 dmperm                         - Dulmage-Mendelsohn permutation.
 symamd                         - Symmetric approximate minimum degree permutation.
 symrcm                         - Symmetric reverse Cuthill-McKee permutation.
-create_permutations            - Creates a population of permutations.
-crossover_permutation          - Custom crossover function for traveling salesman.
-mutate_permutation             - Custom mutation function for traveling salesman.
+perms                          - All possible permutations.
 </pre><p>Another way would be to let MATLAB display all functions in a given category. For example, request all elementary matrices and matrix manipulation:</p><pre class="codeinput">help <span class="string">elmat</span>
 </pre><pre class="codeoutput">  Elementary matrices and matrix manipulation.
  
@@ -508,8 +514,7 @@ mutate_permutation             - Custom mutation function for traveling salesman
     disp        - Display matrix or text.
     isempty     - True for empty array.
     isequal     - True if arrays are numerically equal.
-    isequaln    - True if arrays are numerically equal.
-    isequalwithequalnans - True if arrays are numerically equal.
+    isequaln    - True if arrays are numerically equal, treating NaNs as equal.
  
   Matrix manipulation.
     cat         - Concatenate arrays.
@@ -550,6 +555,7 @@ mutate_permutation             - Custom mutation function for traveling salesman
     realmin     - Smallest positive floating point number.
     intmax      - Largest positive integer value.
     intmin      - Smallest integer value.
+    flintmax    - Largest consecutive integer in floating point format.
     pi          - 3.1415926535897....
     i           - Imaginary unit.
     inf         - Infinity.
@@ -558,7 +564,6 @@ mutate_permutation             - Custom mutation function for traveling salesman
     isinf       - True for infinite elements.
     isfinite    - True for finite elements.
     j           - Imaginary unit.
-    why         - Succinct answer.
  
   Specialized matrices.
     compan      - Companion matrix.
@@ -605,7 +610,7 @@ fprintf(<span class="string">'\nSecond code is faster with factor %3.3f\n'</span
     <span class="comment">% \n stands for change to new line</span>
     <span class="comment">% %3.3f is the format for the ouput of the variable inserted</span>
 </pre><pre class="codeoutput">
-Second code is faster with factor 89.381
+Second code is faster with factor 92.927
 </pre><img vspace="5" hspace="5" src="matlab_script_1_04.png" alt=""> <p>Of course, such an important function is already implemented in MATLAB. Hence, the same results also can be obtained by</p><pre class="codeinput"><span class="comment">% y = normpdf(grid,mu,sigma);</span>
 </pre><p>In order to further highlight the importance of preallocation, we will try a second example.</p><pre class="codeinput">tic
 N = 10e3;
@@ -626,7 +631,7 @@ time2 = toc;
 
 fprintf(<span class="string">'\nPart one takes %2.3d times longer.\n'</span>,time1/time2)
 </pre><pre class="codeoutput">
-Part one takes 1.061e+00 times longer.
+Part one takes 1.078e+00 times longer.
 </pre><p>The same performance improvements also apply to the case of a two-dimensional normal distribution. However, we first introduce two further helpful operators in MATLAB. The first is the transpose operator, which forms the complex conjugate transpose of a matrix, i.e. it simply transposes matrices without complex part.</p><pre class="codeinput"><span class="comment">% init random matrix</span>
 x = rand(3)
 
@@ -794,7 +799,7 @@ fprintf(<span class="string">'\nSecond code is faster with factor %3.3f\n'</span
     <span class="comment">% \n stands for change to new line</span>
     <span class="comment">% %3.3f is the format for the ouput of the variable inserted</span>
 </pre><pre class="codeoutput">
-Second code is faster with factor 79.817
+Second code is faster with factor 411.510
 </pre><p>check for deviations of previous results</p><pre class="codeinput">deviations = [max(max(xGrid-xGrid2)),<span class="keyword">...</span>
               max(max(yGrid-yGrid2)),<span class="keyword">...</span>
               max(max(z-z2))]
@@ -841,7 +846,7 @@ cba
 ans =
 
 Error using vertcat
-CAT arguments dimensions are not consistent.
+Dimensions of matrices being concatenated are not consistent.
 
 </pre><h2>Cell variables<a name="58"></a></h2><p>Cell arrays are used when variables of different types shall be stored in a single variable. For example, an entry in a cell array can contain a numeric value as well as a matrix with numeric entries. Furthermore, it can also obtain a string (an array of characters) or a structure variable. In contrast to the variable types so far, cell arrays are initialized using curled brackets!</p><pre class="codeinput">c = {<span class="string">'abe'</span>,<span class="string">'kdkdkd'</span>}
 
@@ -896,14 +901,13 @@ dates =
 02.02.2001
 03.02.2001
 
-</pre><p class="footer"><br>
-      Published with MATLAB&reg; 7.14<br></p></div><!--
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2013b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% Introduction to MATLAB
 % Christian Groll
 %
-% Seminar für Finanzökonometrie, Ludwig-Maximilians-Universität 
-% München. 
+% Chair of financial econometrics, Ludwig-Maximilians-University 
+% Munich. 
 %
 % All rights reserved.
 
