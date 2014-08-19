@@ -254,8 +254,8 @@ AND = (log1 & log2)
 % elementwise OR: at least one of both logicals has to be 1
 OR = (log1 | log2)
 
-% NONE: elementwise AND inverted with tilde command
-NONE = ~AND
+% NOTBOTH: elementwise AND inverted with tilde command
+NOTBOTH = ~AND
 
 %% 
 % In order to not lose information about the position of entries
