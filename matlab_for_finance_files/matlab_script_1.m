@@ -867,8 +867,7 @@ catch err
     err.message
 end
 
-%% Tables: logical indexing for tables
-
+%% Tables: logical indexing
 % still to come
 
 %% mathematical functions
