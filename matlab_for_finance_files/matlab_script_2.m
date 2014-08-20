@@ -384,6 +384,95 @@ line((meanRet+2*stdDev)*[1 1], yLimits, 'Color', 'r')
 line((meanRet-2*stdDev)*[1 1], yLimits, 'Color', 'r')
 text(meanRet+2*stdDev, yLimits(end)/2, '2 standard deviations')
 
+%% missing data
+% Often in data analysis we have to deal with missing observations. In
+% Matlab, the concept of a missing values is represented by NaN. Here are
+% some examples of how NaNs behave.
+
+% NaNs in comparisons:
+
+NaN == NaN % false
+
+NaN ~= NaN % true
+
+a = [1; NaN; 3];
+b = [1; NaN; 3];
+a == b % false
+
+NaN > NaN % false
+
+% NaNs in mathematical operators:
+
+3 + NaN % NaN
+
+mean(a) % NaN
+
+
+% NaNs in logical operators:
+% throwing errors
+try
+    true & NaN
+catch err
+    err.message
+end
+
+try 
+    false | NaN
+catch err
+    err.message
+end
+
+%% Object oriented programming
+% Different kinds of data also exhibit different patterns. For example,
+% time series data always comes with a time value. In addition, time values
+% are chronologically sorted for stock prices and contain numeric values
+% only. 
+% 
+% Depending on the patterns of the data, we might want some basic functions
+% to behave differently. For example, plots of time series data should have
+% the x axis labelled by dates instead of numbers. Ideally, the plotting
+% function for time series data and matrix data should have the same name,
+% as we would end up with function names like 'plotTimeSeries' otherwise.
+%
+% This can be achieved through object oriented programming. In addition to
+% the data itself, the data also gets a label that tells the computer about
+% the structure that the data represents. For example, a nx2 matrix of
+% numeric values could in reality be representing time series data: the
+% first column are dates in MATLAB's serial date format, while the second
+% column represents the data. As the data still is just a matrix of numeric
+% values, there is no way how MATLAB could distinguish between general
+% numeric matrices and time series data. 
+% 
+% Through object oriented programming, however, the numeric time series
+% data could be labelled as such, so that MATLAB can find some meaning in
+% the data in order to chose an adequate way of plotting it. Labelling the
+% data is achieved through making it an object: the data simply gets stored
+% as an object of a certain type. 
+%
+% In MATLAB, there basically exist two data types that allow such a
+% labelling of time series data. However, depending on which type / label
+% you assign to your data, MATLAB will interpret some basic functions
+% differently.
+%
+% Financial Time Series Objects:
+% - requires Financial Toolbox
+% - allows indexing with dates
+%
+% Time Series Objects:
+% - implemented aggregation functions: daily to monthy, yearly, ...
+%
+% These objects usually store data in some field .Data.
+%
+% Alternatively, one could also store time series data in the most general
+% type as table. This way, however, functions can not be customized to time
+% series patterns, and data is not restricted to numeric values only.
+% However, one then needs to decide whether time information should be
+% stored as separate column, or as names of the rows.
+
+%% Exercise
+% - do the table exercises at courseworks
+% - implement a function to download and process data
+
 %% Regression analysis
 % One of the most important models also in econometrics is the
 % linear model. Hence, the following lines show the
