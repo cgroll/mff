@@ -1,8 +1,8 @@
 %% Value-at-risk and GARCH
 % Christian Groll
 %
-% Seminar für Finanzökonometrie, Ludwig-Maximilians-Universität 
-% M�nchen. 
+% Chair of Financial Econometrics, Ludwig-Maximilians-University 
+% Munich. 
 %
 % All rights reserved.
 

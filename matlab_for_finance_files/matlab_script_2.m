@@ -552,6 +552,7 @@ xlabel('regressor variable')
 ylabel('dependent variable')
 title(['Linear model: estimated beta is ' num2str(paramsHat(2))])
 
+hold off;
 
 %%
 % Because of the risk-aversion of investors, theoretical models
@@ -579,26 +580,54 @@ daxComp = {'ADS.DE', 'ALV.DE',...
     'DBK.DE', 'DPW.DE', 'DTE.DE', 'EOAN.DE', 'FME.DE', 'FRE.DE',...
     'HEI.DE', 'HEN3.DE', 'IFX.DE', 'LHA.DE', 'LIN.DE', 'MAN.DE',...
     'MEO.DE', 'MRK.DE', 'MUV2.DE', 'RWE.DE', 'SAP', 'SDF.DE',...
-    'SIE.DE', 'TKA.DE', 'VOW3.DE'};
+    'SIE.DE', 'TKA.DE', 'VOW3.DE', '^GDAXI'};
 
 %%
 % In order to conduct this analysis, we will first use our implemented
 % function getPrices to download prices of all DAX components. Afterwards,
 % we need to translate the prices into logarithmic returns.
 
-daxPrices = getPrices(dateBeg, dateEnd, daxComp);
+daxCompPrices = getPrices(dateBeg, dateEnd, daxComp);
+daxCompRets = price2retWithHolidays(daxCompPrices);
+
+%% 
+% Now that we have downloaded the data, we want to visually check them for
+% inconsistencies. Therefore, it is best to look at normalized prices:
+% we artificially make the starting price for all assets the same. This in
+% general could easily be done with function cumsum. However, due to the
+% missing observations in our data sample we need to take a different
+% function in order to not return NaNs. Here, we use function nancumsum
+% from the MATLAB file exchange.
+
+close   % close last figure
+normalizedPrices = nancumsum(daxCompRets{:,:});
+plot(numDates(daxCompRets), normalizedPrices)
+datetick 'x'
+
+%%
+% Next, we will calculate the number of observations for each stock. This
+% way, we can see whether individual stocks have substantially less data
+% than the rest.
+
+nObs = sum(~ismissing(daxCompRets), 1);
+nObsTable = array2table(nObs);
+nObsTable.Properties.VariableNames = daxCompRets.Properties.VariableNames;
 
 %%
 % Now that historical returns are given suitable form, we can
-% easily estimate expected returns and standard deviations. Note
+% estimate expected returns and standard deviations. Note
 % that most statistical functions act columnwise. Hence it is
 % always preferable to store observations of a given variable in
 % a column vector, and use different columns for different
-% variables.
+% variables. In our case, however, there are NaNs in our columns, which
+% will lead to NaNs for any calculations as well. Hence, we need to take
+% the missing values into account at each step. For simple statistics like
+% mean and variance we can take the respective function from the statistics
+% toolbox (nanmean, nanstd, ...).
 
 % estimate returns and sigmas of DAX components
-expRets = mean(daxStocks.disRet );
-sigmaHats = sqrt(var(daxStocks.disRet));
+expRets = nanmean(daxCompRets{:,:}*100);
+sigmaHats = nanstd(daxCompRets{:,:}*100);
 
 % show in figure, standard deviations on x-axis
 close   % close last figure
@@ -606,17 +635,18 @@ scatter(sigmaHats, expRets, '.')
 
 % highlight DAX itself
 hold on;
-scatter(sigmaHats(end), expRets(end), 30,[1 0 0], 'filled')
+scatter(sigmaHats(end), expRets(end), 30, [1 0 0], 'filled')
 
 % estimate regression line
-betaHat = [ones(numel(sigmaHats), 1) sigmaHats']\expRets';
+% betaHat = [ones(numel(sigmaHats), 1) sigmaHats']\expRets';
+betaHat = [sigmaHats']\expRets';
 
 % calculate regression line
 xLimits = get(gca, 'XLim');
 grid = linspace(xLimits(1), xLimits(end), 200);   % divide 
                                     % specified interval in 200
                                     % parts of equal size
-yVals = [ones(numel(grid), 1) grid']*betaHat;
+yVals = [grid']*betaHat;
 
 % include regression line in red
 plot(grid, yVals, 'r')
@@ -657,10 +687,11 @@ ylabel('estimated mean returns')
 % is only an imperfect substitution.
 
 % preallocate vector for estimated betas
-betas = zeros(1, 29);
-for ii=1:29
-    betas(ii) = regress(daxStocks.disRet(:, end),...
-        daxStocks.disRet(:, ii));   % no intercept involved
+nDaxComponents = size(daxCompRets, 2) -1;
+betas = zeros(1, nDaxComponents);
+for ii=1:nDaxComponents
+    betas(ii) = regress(daxCompRets{:, end},...
+        daxCompRets{:, ii});   % no intercept involved
 end
 
 % plot betas with expected returns
