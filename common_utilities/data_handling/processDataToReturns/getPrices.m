@@ -1,4 +1,4 @@
-function joinedTable = getPrices(dateBeg, dateEnd, tickerSymbs)
+function joinedTableSorted = getPrices(dateBeg, dateEnd, tickerSymbs)
 %
 % Input:
 %   dateBeg     same format as for hist_stock_data
@@ -22,10 +22,12 @@ end
 % call joinStockPriceSeries
 joinedTable = joinStockPriceSeries(stockStructure);
 
+joinedTableSorted = sortrows(joinedTable, 1);
+
 % get dates as row names
-dats = joinedTable{:, 1};
-joinedTable(:, 1) = [];
-joinedTable.Properties.RowNames = dats;
+dats = joinedTableSorted{:, 1};
+joinedTableSorted(:, 1) = [];
+joinedTableSorted.Properties.RowNames = dats;
 
 end
 
