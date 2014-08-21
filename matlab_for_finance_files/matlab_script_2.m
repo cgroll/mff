@@ -1,8 +1,8 @@
-%% Working with financial data: regression analysis and curve fitting
+%% Working with financial data: regression analysis
 % Christian Groll
 %
-% Seminar f�r Finanz�konometrie, Ludwig-Maximilians-Universit�t 
-% M�nchen. 
+% Chair of Financial Econometrics, Ludwig-Maximilians-University 
+% Munich.  
 %
 % All rights reserved.
 
@@ -21,14 +21,6 @@
 % Only the next script will show common approaches to
 % modelling of stock market returns as stochastic variables.
 
-
-%% Required functions
-%   hist_stock_data
-%   processData
-%   LPPL
-%   LPPLfit
-%   constrFunc
-%   LPPLinteractively
 
 %% Load historic DAX prices
 % The following code provides an example of the usage of the
@@ -273,7 +265,7 @@ find(matr>=20, 1)   % returns only first index with logical value one
 
 %% Exercises: logical indexing
 % In order to deepen your understanding of logical indexing, you now
-% should try yourself at the logical indexing assignment at the
+% should test yourself at the logical indexing assignment at the
 % coursework homepage on https://coursework.mathworks.com.
 
 %%
@@ -384,10 +376,21 @@ line((meanRet+2*stdDev)*[1 1], yLimits, 'Color', 'r')
 line((meanRet-2*stdDev)*[1 1], yLimits, 'Color', 'r')
 text(meanRet+2*stdDev, yLimits(end)/2, '2 standard deviations')
 
-%% missing data
-% Often in data analysis we have to deal with missing observations. In
-% Matlab, the concept of a missing values is represented by NaN. Here are
-% some examples of how NaNs behave.
+%% Missing data
+% Downloading a single asset only with hist_stock_data will not give us any
+% missing values in our time series, since dates without observations are
+% simply left out. However, leaving the case of a single asset only and
+% switching to multiple assets, the individual time series will most likely
+% have different missing dates. For example, US stocks and German stocks
+% have different holidays.
+%
+% One way to deal with this fact would be to simply erase all dates where
+% we do not have observations for all assets. This way, however, we will
+% eliminate quite many observations that we could have used for univariate
+% modeling. Hence, we will follow a more sophisticated approach, where we
+% will keep all dates that occur in at least one stock price series, and
+% fill the respective missing values with MATLAB's NaN. Hence, we now first
+% want to get familiar with the behaviour of NaNs through some examples.
 
 % NaNs in comparisons:
 
@@ -422,7 +425,18 @@ catch err
     err.message
 end
 
+
+
 %% Object oriented programming
+% What we really want now is to create a function that downloads stock
+% price data of multiple assets through hist_stock_data, combines all
+% stocks, keeps a single dates vector including all dates that occur in at
+% least one stock and fills missing observations with NaN. Still, however,
+% we need to decide about the exact data type that should be used as a data
+% container, and there are several possible types in MATLAB: cell array,
+% structure, matrix plus dates vector, table, time series object, financial
+% time series object, ...
+%
 % Different kinds of data also exhibit different patterns. For example,
 % time series data always comes with a time value. In addition, time values
 % are chronologically sorted for stock prices and contain numeric values
@@ -466,12 +480,20 @@ end
 % Alternatively, one could also store time series data in the most general
 % type as table. This way, however, functions can not be customized to time
 % series patterns, and data is not restricted to numeric values only.
-% However, one then needs to decide whether time information should be
+% Still, we can make use of some nice and general data manipulation
+% functions that are implemented for tables, one of them being an outer
+% join which we need to combine the individual assets. Hence, we will keep
+% data stored as tables here, although the decision of the right data type
+% basically is a matter of personal preferences. Dealing with tables,
+% however, one still needs to decide whether time information should be
 % stored as separate column, or as names of the rows.
+ 
 
-%% Exercise
-% - do the table exercises at courseworks
-% - implement a function to download and process data
+%% Exercises
+% 1.) do the table exercises at courseworks
+%
+% 2.) implement a function getData that downloads and processes data and
+% returns the result as table
 
 %% Regression analysis
 % One of the most important models also in econometrics is the
@@ -530,6 +552,7 @@ xlabel('regressor variable')
 ylabel('dependent variable')
 title(['Linear model: estimated beta is ' num2str(paramsHat(2))])
 
+
 %%
 % Because of the risk-aversion of investors, theoretical models
 % often conclude that riskier assets should in general coincide
@@ -550,138 +573,20 @@ dateBeg = '01011990';
 dateEnd = '01072011';
 
 % download data of all components: dax_comp is structure array
-daxComp = hist_stock_data(dateBeg, dateEnd, 'ADS.DE', 'ALV.DE',...
+daxComp = {'ADS.DE', 'ALV.DE',...
     'BAS.DE', 'BAYN.DE', 'BEI.DE', 'BMW.DE', 'CBK.DE', 'DAI.DE', ...
     'DB1.DE',...
     'DBK.DE', 'DPW.DE', 'DTE.DE', 'EOAN.DE', 'FME.DE', 'FRE.DE',...
     'HEI.DE', 'HEN3.DE', 'IFX.DE', 'LHA.DE', 'LIN.DE', 'MAN.DE',...
     'MEO.DE', 'MRK.DE', 'MUV2.DE', 'RWE.DE', 'SAP', 'SDF.DE',...
-    'SIE.DE', 'TKA.DE', 'VOW3.DE');
+    'SIE.DE', 'TKA.DE', 'VOW3.DE'};
 
 %%
-% When downloading data of so many different stocks at 
-% Yahoo!finance, we usually will observe different sample sizes 
-% of the individual time series. This also has to be taken into
-% account when stocks of different countries are involved, since
-% deviating holidays will lead to different sample sizes. Let's
-% first investigate the sample sizes.
+% In order to conduct this analysis, we will first use our implemented
+% function getPrices to download prices of all DAX components. Afterwards,
+% we need to translate the prices into logarithmic returns.
 
-% preallocate storage variables for first dates and samples sizes
-firstDates = zeros(size(daxComp)); 
-sampleSizes = zeros(size(daxComp));
-
-% extract first date and sample size of each component
-for ii=1:numel(firstDates)
-    firstDates(ii) = datenum(daxComp(ii).Date(end));
-    sampleSizes(ii) = numel(daxComp(ii).Date);
-end
-
-% display first dates as strings to command window
-fprintf('\nThe respective first observations are given by:\n')
-
-for ii=4:4:numel(daxComp)
-    % display four dates per row
-    fprintf([datestr(firstDates(ii-3), 'dd-mmm-yyyy') ', '...
-        datestr(firstDates(ii-2), 'dd-mmm-yyyy') ', ' ...
-        datestr(firstDates(ii-1), 'dd-mmm-yyyy') ', ' ...
-        datestr(firstDates(ii), 'dd-mmm-yyyy') '\n'])
-end
-
-% if numel(daxComp) is not divisible by 4
-remaining = mod(numel(daxComp), 4);
-nMultiplesOfFour = (numel(daxComp) - remaining) / 4;
-nAlreadyShown = nMultiplesOfFour * 4;
-for ii=1:remaining
-    if(ii==1)
-        str = datestr(firstDates(ii + nAlreadyShown), 'dd-mmm-yyyy');
-    else
-        str = [str ', ' datestr(firstDates(ii + nAlreadyShown),...
-                                'dd-mmm-yyyy')];
-    end
-end
-fprintf(str)       
-
-% get ticker symbol of component with minimum sample size
-tSym = daxComp(find(sampleSizes == min(sampleSizes))).Ticker;
-
-% display with sample sizes
-fprintf(['\nThe minimum sample size occurs for ' tSym ...
-    '.\nThere are only %2i observations.\n'], min(sampleSizes))
-
-%%
-% This index refers to VOW3.DE, standing for Volkswagen. Since all
-% other sample sizes are large enough, we simply exclude Volkswagen
-% from the analysis.
-
-% delete Volkswagen from data
-indexOfMinimumSampleSize = find(sampleSizes == min(sampleSizes));
-daxComp(indexOfMinimumSampleSize) = [];
-firstDates(indexOfMinimumSampleSize) = [];
-sampleSizes(indexOfMinimumSampleSize) = [];
-
-% get new minimum
-fprintf(['\nThe new minimum now is %2i, which seems to be\n'...
-    'sufficient for reasonable analysis.\n'], min(sampleSizes))
-
-%% 
-% Exercise:
-%
-% Since the availability of data for individual DAX components
-% changes from time to time, it is not guaranteed, that there will
-% always be only one company with insufficient data. A better way
-% hence would be defining a certain minimal sample size as threshold.
-% Then, all companies with less data should be removed automatically.
-
-
-%%
-% In order to eliminate data points with missing values and to
-% adjust the data to the usual convention with chronologically
-% increasing points in time, we make use of the function
-% processData(). Also, string dates are converted to serial 
-% dates, and the already used data of the German stock index is
-% included. However, keep in mind that elimination of dates with at least
-% one missing observation is only one possible way to process data. For a
-% more elaborate overview over different ways to deal with missing
-% observations see
-% http://grollchristian.wordpress.com/2014/08/13/missing-data/. Also, keep
-% in mind that there are usually several concepts of "missingness", and
-% MATLAB only has implemented NaN.
-
-tic
-[daxDates daxPrices] = processData([daxComp daxCrude]);
-toc
-%%
-% The following two queries give an impression about the nature
-% of the output of the function.
-
-% both output are numeric variables
-numericVars = [isnumeric(daxDates) isnumeric(daxPrices)]
-
-% get dimensions
-size(daxDates) 
-size(daxPrices)
-
-%%
-% Hence the data consist of about 2000 observations of 30 different
-% stocks (29 DAX components and the DAX itself), and daxDates is the
-% vector of respective dates in serial dates format. This information
-% will be stored more meaningful and robust in a structure called
-% daxStocks, together with respective returns, return dates and
-% ticker symbols.
-
-% assign existing data to daxStocks fields
-daxStocks.dates = daxDates;
-daxStocks.prices = daxPrices;
-
-% transform to percentage discrete returns
-daxStocks.disRet = 100*diff(daxPrices)./daxPrices(1:end-1,:);
-
-% diff() calculates differences between successive matrix entries
-c = rand(2)
-differences = diff(c)
-
-% get ticker symbols
-daxStocks.ticker = {daxComp.Ticker daxCrude.Ticker};
+daxPrices = getPrices(dateBeg, dateEnd, daxComp);
 
 %%
 % Now that historical returns are given suitable form, we can
@@ -786,269 +691,6 @@ title('CAPM disproved?')
 % investigations as scientifically rigurous and adequate
 % approach. As part of a more thorough investigation at least 
 % also returns of larger time horizons would have to be examined.
-
-%% Stock price prediction based on curve fitting
-% While the previous part was concerned with looking for an
-% explanatory variable for stock returns, we now will try to find
-% regularities in stock prices that allow to make predictions on
-% future price movements. That is, in course of its evolution,
-% any stock price seems to follow some trend at some point of
-% time. Looking at charts of stock prices one usually might be
-% tempted to assume that such trends could be identified in
-% real-time, thereby allowing for speculative trading 
-% opportunities. The idea in this chapter is to fit certain
-% functions to historic stock price paths. Given that the
-% function seems to be a good approximation to past prices,
-% chance might be that it will still be an approximation in the
-% future, so that our function could be used as stock price 
-% predictor.
-% However, the approach taken here is slightly different. Based
-% on curve fitting tools, positive trends in stock prices shall
-% be identified. But instead of trying to exactly predict future
-% prices, we only try to identify points in time where the
-% current dynamic changes. That is, we only try to predict
-% break-offs of rising stock prices, without bothering with the
-% exact type of regime evolving after the break-off.
-
-%%
-% Given that returns fluctuate around a constant positive value,
-% prices should exhibit exponential growth. Such growth rates
-% best can be seen on logarithmic scale, since they correspond to
-% a straight line here. Hence, we first extend the data structure
-% with an additional field logPrices. Visualization shows that
-% DAX prices tend to exhibit super-exponential growth during
-% certain periods.
-
-% get log prices
-dax.logPrices = log(dax.prices);
-
-% specify subperiod as strings
-begT = '01-Jun-1993';
-endT = '29-Jul-1998';
-
-% find indices associated with considered period
-indS = find(dax.dates > datenum(begT, 'dd-mmm-yyyy'), 1);
-indE = find(dax.dates > datenum(endT, 'dd-mmm-yyyy'), 1);
-
-%%
-% Note: it is not possible to access the prices with indexing
-% based on the dates of the time series. Hence, dates always have
-% to be converted to chronological indices first. However, the
-% finance toolbox of MATLAB also includes financial time series
-% objects (fints) that can be indexed by date strings. For
-% example, myfts({'05/11/99', '05/21/99', '05/31/99'}) extracts
-% the values of the fints object myfts at the specified dates.
-
-% create figure window 
-close
-figure('Position', [50 50 1200 600])
-
-% plot DAX prices with subperiod highlighted
-ax(1) = subplot(2, 1, 1);
-plot(dax.dates, dax.prices, 'Color', [1 0.8 0.8]);
-hold on;
-plot(dax.dates(indS:indE), dax.prices(indS:indE)); 
-datetick 'x'
-title('linear scale')
-
-% plot log DAX prices with subperiod highlighted
-ax(2) = subplot(2, 1, 2);
-plot(dax.dates, dax.logPrices, 'Color', [1 0.8 0.8]);
-hold on;
-plot(dax.dates(indS:indE), dax.logPrices(indS:indE)); shg
-datetick 'x'
-title('logarithmic scale')
-
-% connect axes of both graphs: zooming in applies to both plots
-linkaxes([ax(1) ax(2)], 'x');
-
-%% 
-% Although it would be easier to fit a straight line to log
-% prices we want to estimate to best fitting exponential growth
-% for normal prices using an optimization.
-% Hence, the exponentially growing function f(x)= a_1*exp(a_2*x)
-% shall be fitted to the stock prices. Therefore, parameters a_1 
-% and a_2 will be chosen such that the mean squared error between
-% the exponential function and the historic price chart is 
-% minimized.
-
-% create new grid for subperiod, starting at 1
-daysSinceBeg = 1:numel(dax.dates(indS:indE));   % stock market 
-        % prices are treated as equidistant, with no distinction
-        % between Friday / Monday or Monday / Tuesday
-
-% define exponential function as anonymous function
-expFun = @(x, params) params(1)*exp(x.*params(2));
-
-% evaluating exponential function similar to normal functions
-fprintf(['Calling the anonymous function according to '...
-    'usual syntax\nexpFun(3,[0.5 0.5])\nreturns the value'...
-    ' %1.2f.\n'], expFun(3,[0.5 0.5]))
-
-%%
-
-% define mean squared error function as anonymous function
-errFun = @(params, x, prices)...
-    sum((prices(:) - expFun(x(:), params)).^2);  % for any price 
-        % series given by prices and associated x values the
-        % error function computes the mean squared error between
-        % exponential function with parameters params and the
-        % price series
-
-% init guess for optimization
-params0 = [dax.prices(indS) ...
-    log(dax.prices(indE) - dax.prices(indS))/...
-    (dax.dates(indE) - dax.dates(indS))];
-        % params(2) chosen so that it fulfills the equation:
-        % exp((daysSinceBeg(end)-daysSinceBeg(1))*a_2) 
-        %           != prices(end)-prices(1)
-
-% specify options for optimization        
-opt = optimset('display', 'off', 'TolX', 1e-18, 'TolFun', 1e-8);
-
-% optimization
-[bestParams expMSE] = fminsearch(errFun, params0, opt,...
-    daysSinceBeg, dax.prices(indS:indE));
-
-%%
-% Note: since the objective function, which shall be minimized,
-% also depends on the grid values of x and the given price vector
-% prices, these data has to be given as fixed input into the
-% optimization, since the optimization shall only be applied to
-% the parameter values. 
-% Therefore, the parameters of interest have to appear in the
-% objective function as one vector and as first input. Additional
-% inputs are included in the optimization routine fminsearch as
-% additional inputs at last positions. However, this syntax is
-% only allowed when the objective function is given as function
-% handle to an anonymous function. An example of a similiar
-% optimization task involving an already existing MATLAB function
-% will be given further below.
-
-% calculate associated exponential function values
-expVals = expFun(daysSinceBeg, bestParams);
-
-% include in given figure
-subplot(2, 1, 1);
-plot(dax.dates(indS+daysSinceBeg), expVals, 'r'); % Note: 
-        % dax.dates(indS) + daysSinceBeg does not work, since
-        % dax.dates is not numbered consecutively. dax.dates
-        % refers to business days, not consecutive days!
-xlabel('dates')
-ylabel('prices')
-
-subplot(2, 1, 2);
-plot(dax.dates(indS+daysSinceBeg), log(expVals), 'r'); shg
-xlabel('dates')
-ylabel('prices')
-
-% calculate mean squared error on logarithmic scale
-mse = sum((dax.logPrices(indS+daysSinceBeg)-log(expVals(:))).^2);
-
-% display mean squared error 
-fprintf(['\nThe mean squared error between the exponential fit'...
-        ' and\nthe stock price path is %3.4f.\n'], mse);
-
-%%
-% With the straight line as benchmark, one can see that the stock
-% price path exhibits a convex curvature during the subperiod.
-% This pattern indicates super-exponential growth rates. Such 
-% growth rates usually are associated with stock market bubbles.
-% Our intention now will be to identify evolving stock market
-% bubbles, and try to predict the time they burst.
-% According to Didier Sornette and his colleagues, stock market
-% bubbles can be approximated with super-exponentially growing 
-% log-periodic power law (LPPL) functions. These are 
-% super-exponentially growing functions with finite-time 
-% singularities and oscillating behaviour, given by the formula:
-% f(x) = a_1 + a_2*(a_3-x)^(a_4)*
-%       (1+a_5*cos(a_6*log(a_3-a_8*x)+a_7).
-% In order to get an impression about the appropriateness of a
-% LPPL function, we will fit it the subperiod and compare its
-% mean squared error to the error of a simple exponential
-% fucntion. Furthermore, we will examine whether the date of the
-% estimated finite-time singularity could be used as indicator of
-% a forthcoming change in regimes.
-
-
-% fit LPPL model to subperiod
-params = lpplFit(dax.logPrices(indS:indE));
-
-% calculate approximation values to stock prices
-[vals derivs] = lpplFunc(params);
-
-% create associated grid
-grid = dax.dates(indS + ( 1:(params(3)/params(8)-1) )); 
-    % Note: params(3)/params(8) denotes the time in business days
-    % from beginning of subperiod until finite-time singularity. 
-
-% include in given figure
-subplot(2, 1, 2);
-plot(grid, vals, 'g'); shg
-
-% include line for finite time singularity
-yLimits = get(gca, 'yLim');
-line(dax.dates(indS + floor(params(3)/params(8)) )*[1 1], yLimits,...
-    'Color', 'k')
-
-% calculate mean squared error on logarithmic scale
-mseLppl = sum( (dax.logPrices(indS + daysSinceBeg) -...
-    (vals(daysSinceBeg)')).^2);
-
-fprintf(['\nIn contrast to the MSE of ' num2str(mse) ...
-    ' obtained before,\n we now get a MSE of only '...
-    num2str(mseLppl) '.\n'])
-
-%% 
-% When looking at the figure, we can see that the fitted LPPL
-% model at the time of the end of the subperiod could indicates 
-% an impending regime change, since the critical point given by 
-% the finite-time singularity lies only days ahead.
-
-%%
-% In order to examine the validity of the LPPL model on further
-% stock market indices, you can uncomment the following lines of
-% code and interactively conduct experiments on historic data. As
-% examples of further accurate subperiod fitting, take a look at
-% Hang Seng index from 15-Dec-2004 to 21-Nov-2007, which 
-% leads to an estimated regime change 52 business days ahead, or
-% the German stock market index from 15-Oct-1992 to 29-Jul-1998.
-
-%% 
-% % Interactive examination of further stock market indices.
-% 
-% %tickerSyms = cell(8, 1);
-% tickerSyms = {'^GDAXI';'^SMSI';'^SSMI';...
-%     '^OMXSPI';'^NDX';'^DJI';'^HSI';'^SSEC'};
-% 
-% indexNames = {'DAX'; 'Madrid General';...
-%     'Swiss Market'; 'Stockholm General'; 'NASDAQ'; ...
-%     'Dow Jones Industrial'; 'Hang Seng';...
-%     'Shanghai Composite'};
-% 
-% for ii=1:numel(tickerSyms)
-%     fprintf(['\nIndex investigated: ' indexNames{ii} '\n'])
-%     data = hist_stock_data(begT, endT, tickerSyms{ii});
-%     
-%     if (~isempty(data))
-%        [data_dates data_prices] = processData(data);
-%        params = LPPLinteractively(data_prices, data_dates)
-%        title([indexNames{ii} ' -- Press key to continue'])
-%        hold off
-%     end
-% 
-%     
-%     pause
-% end
-% 
-% %% Movie
-% 
-% frames = LPPLmovie(data_prices, data_dates, 50);
-% 
-% %%
-% movie(frames, 10, 2)
-% 
-
 
 
 
