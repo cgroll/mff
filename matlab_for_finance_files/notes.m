@@ -66,6 +66,10 @@ cd
 
 %% Further interesting topics
 % - Quandl
-% - Dataset / Table
+% - Debugger
+% - parallel computing
+% - profiler
+% - Dataset / Table / Time Series objects
 % - Unit testing
 % - git
+% - best practices
