@@ -1,28 +1,28 @@
-function rets = price2retWithHolidays(prices)
+function retsTable = price2retWithHolidays(prices)
 %
 % Input:
 %   prices  nxm matrix or table of prices
 %
 % Output:
-%   rets    (n-1)xm matrix of logarithmic returns
+%   retsTable    (n-1)xm table of logarithmic returns
 
-nStocks = size(prices, 2);
+% get missing values
+missingValues = isnan(prices{:,:});
 
 % get log prices
-logPrices = log(prices);
+logPrices = log(prices{:,:});
+pricesImputed = imputeWithLastDay(logPrices);
 
-% find missing values and replace with previous observation
-missingPrices = isnan(logPrices);
-nansToReplace = logical([zeros(1, nStocks); missingPrices(2:end, :)]);
-replaceWith = logical([missingPrices(2:end, :); zeros(1, nStocks)]);
-
-pricesImputed = logPrices;
-pricesImputed(nansToReplace) = logPrices(replaceWith);
+% impute once again?
+% pricesImputed = imputeWithLastDay(pricesImputed);
 
 % calculate returns
 rets = diff(pricesImputed);
 
 % fill in NaNs again
-rets(missingPrices(2:end, :)) = NaN;
+rets(missingValues(2:end, :)) = NaN;
+
+% embed returns in table meta-data
+retsTable = embed(rets, prices(2:end, :));
 
 end
