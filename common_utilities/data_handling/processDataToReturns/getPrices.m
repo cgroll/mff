@@ -22,5 +22,10 @@ end
 % call joinStockPriceSeries
 joinedTable = joinStockPriceSeries(stockStructure);
 
+% get dates as row names
+dats = joinedTable{:, 1};
+joinedTable(:, 1) = [];
+joinedTable.Properties.RowNames = dats;
+
 end
 

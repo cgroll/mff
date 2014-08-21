@@ -8,6 +8,7 @@ function varname = createValidName(tickSymb)
 
 % eliminate ^ from string
 tickSymbNoHat = tickSymb(tickSymb ~= '^');
+tickSymbNoHat(tickSymbNoHat == '.') = '_';
 
 varname = genvarname(tickSymbNoHat);
 end
