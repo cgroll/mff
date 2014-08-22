@@ -1,4 +1,4 @@
-function xAsTable = embed(x, t)
+function t = embed(x, t)
 % add meta-data from table t to matrix x
 %
 % Inputs:
@@ -8,7 +8,6 @@ function xAsTable = embed(x, t)
 % Output:
 %   xAsTable    table
 
-xAsTable = array2table(x);
-xAsTable.Properties.RowNames = t.Properties.RowNames;
-xAsTable.Properties.VariableNames = t.Properties.VariableNames;
+t{:,:} = x;
+
 end
