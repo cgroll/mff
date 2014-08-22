@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Value-at-risk and GARCH</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2013-08-25"><meta name="DC.source" content="matlab_script_3.m"><style type="text/css">
+      --><title>Value-at-risk and GARCH</title><meta name="generator" content="MATLAB 8.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-08-22"><meta name="DC.source" content="matlab_script_3.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -54,8 +54,18 @@ span.syscmd { color:#B28C00 }
 
 .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
 .footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
 
-  </style></head><body><div class="content"><h1>Value-at-risk and GARCH</h1><!--introduction--><p>Christian Groll</p><p>Seminar f&uuml;r Finanz&ouml;konometrie, Ludwig-Maximilians-Universit&auml;t M&#65533;nchen.</p><p>All rights reserved.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Required functions</a></li><li><a href="#3">Monte Carlo simulation</a></li><li><a href="#18">Application to real data</a></li><li><a href="#25">VaR</a></li><li><a href="#30">Backtesting</a></li><li><a href="#33">Simulation study: empirical quantiles</a></li><li><a href="#35">Autoregressive processes</a></li><li><a href="#40">Fitting AR(2) processes</a></li><li><a href="#41">GARCH(1,1)</a></li></ul></div><p>Although the previous parts of the script shall not be understood as rigorous scientific investigation of the topics treated, they nevertheless demonstrate some first indications that simple regression models or curve fitting techniques do not provide the desired informational gains in financial applications. The deterministic and predictable part of stock prices is usually too small, compared with the large uncertainty that is involved. Hence, stock market prices are commonly perceived as stochastic, so that they are best described in the framework of probability theory. This part of the course shall introduce some of the basic concepts used to capture the stochasticity in stock prices.</p><h2>Required functions<a name="2"></a></h2><pre class="language-matlab">garchestimation
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Value-at-risk and GARCH</h1><!--introduction--><p>Christian Groll</p><p>Chair of Financial Econometrics, Ludwig-Maximilians-University Munich.</p><p>All rights reserved.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Required functions</a></li><li><a href="#3">Monte Carlo simulation</a></li><li><a href="#18">Application to real data</a></li><li><a href="#25">VaR</a></li><li><a href="#30">Backtesting</a></li><li><a href="#33">Simulation study: empirical quantiles</a></li><li><a href="#35">Autoregressive processes</a></li><li><a href="#40">Fitting AR(2) processes</a></li><li><a href="#41">GARCH(1,1)</a></li></ul></div><p>Although the previous parts of the script shall not be understood as rigorous scientific investigation of the topics treated, they nevertheless demonstrate some first indications that simple regression models or curve fitting techniques do not provide the desired informational gains in financial applications. The deterministic and predictable part of stock prices is usually too small, compared with the large uncertainty that is involved. Hence, stock market prices are commonly perceived as stochastic, so that they are best described in the framework of probability theory. This part of the course shall introduce some of the basic concepts used to capture the stochasticity in stock prices.</p><h2>Required functions<a name="2"></a></h2><pre class="language-matlab">garchestimation
 </pre><h2>Monte Carlo simulation<a name="3"></a></h2><p>As part of the standard MATLAB program the function rand() enables simulation of uniformly distributed pseudo random variables. This is one of the most important tools for financial econometrics. However, the key to understanding this importance is to understand that these uniformly distributed simulated values can be transformed to samples of any given distribution function by a simple transformation.</p><pre class="codeinput"><span class="comment">% init params</span>
 n = 1000;     <span class="comment">% sample size</span>
 nBins = 20;   <span class="comment">% number of points per bin</span>
@@ -144,9 +154,9 @@ fprintf([<span class="string">'It also can be calculated using an '</span><span 
     num2str(normpdf(points(1), mu, sigma))<span class="keyword">...</span>
     <span class="string">'.\n'</span>])
 </pre><pre class="codeoutput">
-The likelihood of the first point is given by 0.34788.
+The likelihood of the first point is given by 0.35152.
 It also can be calculated using an existing MATLAB function:
-normpdf(points(1), mu, sigma) = 0.34788.
+normpdf(points(1), mu, sigma) = 0.35152.
 </pre><pre class="codeinput"><span class="comment">% calculate lh for all individual points</span>
 lhs = normpdf(points, mu, sigma);
 
@@ -157,7 +167,7 @@ cumulatedLikelihoods =
 
   Columns 1 through 7
 
-    0.3479    0.0805    0.0145    0.0031    0.0013    0.0002    0.0001
+    0.3515    0.0964    0.0231    0.0029    0.0004    0.0001    0.0000
 
   Columns 8 through 10
 
@@ -173,11 +183,11 @@ cumulatedSum =
 
   Columns 1 through 7
 
-   -1.0559   -2.5198   -4.2323   -5.7628   -6.6836   -8.3598   -9.4273
+   -1.0455   -2.3392   -3.7695   -5.8378   -7.9174   -9.0719  -10.0423
 
   Columns 8 through 10
 
-  -11.3262  -12.9851  -16.6507
+  -11.0306  -13.8268  -14.8608
 
 </pre><p>As can be seen, using log-likelihood does not cause the same numerical problems. Now, let's create an anonymous function that takes the parameters of the normal distribution and the sample points as input, and calculates the negative log-likelihood. This function subsequently can be used in the optimization routine.</p><pre class="codeinput"><span class="comment">% anonymous function</span>
 nllh = @(params, data)sum(0.5*log(params(2)^2*2*pi)+<span class="keyword">...</span>
@@ -195,7 +205,7 @@ negLogLikelihoods =
 
    1.0e+03 *
 
-    1.4363    1.4363
+    1.4243    1.4243
 
 </pre><p>Obviously, both values are identical.</p><p>Since the parameter sigma of the normal distribution may not take on negative values, we are confronted with a constrained optimization problem. Hence, we have to use the function fmincon.</p><pre class="codeinput"><span class="comment">% simulate random points from normal distribution</span>
 points = normrnd(mu, sigma, 1000, 1);
@@ -270,9 +280,9 @@ compareToRealParams = [mu sigma; paramsHat1; <span class="keyword">...</span>
 compareToRealParams =
 
     2.0000    1.0000
-    1.9978    0.9765
-    1.9978    0.9765
-    1.9978    0.9765
+    2.0247    1.0168
+    2.0247    1.0168
+    2.0247    1.0168
 
 </pre><p>Now that we successfully estimated the underlying normal distribution, we want to try the same estimation procedure for a Student's t-distribution.</p><pre class="codeinput"><span class="comment">% init params</span>
 n = 1000;
@@ -306,6 +316,8 @@ paramHat = fmincon(nllhT, param0, [], [], [], [], <span class="keyword">...</spa
 the gradient in the objective function and set the GradObj option to 'on'.
 FMINCON will use the active-set algorithm instead. For information on applicable
 algorithms, see Choosing the Algorithm in the documentation. 
+Warning: Your current settings will run a different algorithm (interior-point)
+in a future release. 
 
 Local minimum possible. Constraints satisfied.
 
@@ -321,7 +333,7 @@ compareToRealParam = [nu paramHat]
 </pre><pre class="codeoutput">
 compareToRealParam =
 
-    4.0000    3.8345
+    4.0000    4.5713
 
 </pre><h2>Application to real data<a name="18"></a></h2><p>Now we want to examine whether observed returns in the real world approximately follow a normal distribution. As first example we will chose the German stock market index for our investigation.</p><pre class="codeinput"><span class="comment">% specify ticker symbol as string variable</span>
 tickSym = <span class="string">'^GDAXI'</span>;     <span class="comment">% specify stock data of interest</span>
@@ -331,13 +343,11 @@ dateBeg = <span class="string">'01011990'</span>;       <span class="comment">% 
 dateEnd = datestr(today, <span class="string">'ddmmyyyy'</span>);  <span class="comment">% today as last date</span>
 
 <span class="comment">% load data</span>
-daxCrude = hist_stock_data(dateBeg, dateEnd, tickSym);
-
-<span class="comment">% process data</span>
-[DAX.dates DAX.prices] = processData(daxCrude);
+dax = getPrices(dateBeg, dateEnd, {tickSym});
 
 <span class="comment">% calculate percentage log returns</span>
-DAX.logRet = 100*(log(DAX.prices(2:end))-log(DAX.prices(1:end-1)));
+daxRetsTable = price2retWithHolidays(dax);
+daxLogRets = daxRetsTable{:,:}*100;
 </pre><p>Fitting parameters of normal distribution to data.</p><pre class="codeinput"><span class="comment">% init bounds</span>
 lb = [-inf 0.001];
 ub = [inf inf];
@@ -348,25 +358,25 @@ opt = optimset(<span class="string">'display'</span>, <span class="string">'off'
 <span class="comment">% estimate normal distribution parameters</span>
 paramsHat = <span class="keyword">...</span>
    fmincon(nllh, params0, <span class="keyword">...</span>
-   [], [], [], [], lb, ub, [], opt, DAX.logRet);
+   [], [], [], [], lb, ub, [], opt, daxLogRets);
 
 <span class="comment">% compare parameters with estimation from existing function</span>
-[muHat sigmaHat] = normfit(DAX.logRet);
+[muHat sigmaHat] = normfit(daxLogRets);
 paramComparison = [paramsHat; muHat sigmaHat]
 </pre><pre class="codeoutput">
 paramComparison =
 
-    0.0306    1.4536
-    0.0306    1.4537
+    0.0312    1.4332
+    0.0312    1.4333
 
 </pre><p>In order to examine the goodness-of-fit of the estimated normal distribution, some visualizations can be helpful. First, a normalized histogram of the data shall be compared to the probability density function of the fitted distribution. Moreover, as the largest financial risks are located in the tails of the distribution, the figure also shall show a more amplified view on the lower tail.</p><pre class="codeinput"><span class="comment">% show normalized histogram with density of normal distribution</span>
-[counterX locationsX] = hist(DAX.logRet, 50);
+[counterX locationsX] = hist(daxLogRets, 50);
 width = diff(locationsX(1:2));
 
 <span class="comment">% show bar diagram in first subplot</span>
 figure(<span class="string">'position'</span>, [50 50 1200 600])
 subplot(1, 2, 1);
-bar(locationsX, counterX/(numel(DAX.logRet)*width), 1);
+bar(locationsX, counterX/(numel(daxLogRets)*width), 1);
 hold <span class="string">on</span>;
 
 <span class="comment">% init grid</span>
@@ -381,7 +391,7 @@ title(<span class="string">'relative frequencies with normal distribution'</span
 <span class="comment">% show lower tail region amplified</span>
 subplot(1, 2, 2);
 hold <span class="string">on</span>;
-bar(locationsX, counterX/(numel(DAX.logRet)*width), 1);
+bar(locationsX, counterX/(numel(daxLogRets)*width), 1);
 plot(grid, normpdf(grid, paramsHat(1), paramsHat(2)), <span class="keyword">...</span>
     <span class="string">'r'</span>, <span class="string">'LineWidth'</span>, 2);
 axis([paramsHat(1)-7*paramsHat(2) paramsHat(1)-2*paramsHat(2)<span class="keyword">...</span>
@@ -393,15 +403,15 @@ figure(<span class="string">'position'</span>, [50 50 1200 600])
 subplot(1, 2, 1)
 
 <span class="comment">% generate sample points of given distribution</span>
-sample = normrnd(paramsHat(1), paramsHat(2), numel(DAX.logRet), 1);
+sample = normrnd(paramsHat(1), paramsHat(2), numel(daxLogRets), 1);
 
 <span class="comment">% qq-plot: empirical returns vs. estimated normal distribution</span>
-qqplot(DAX.logRet, sample);
+qqplot(daxLogRets, sample);
 title(<span class="string">'built-in qqplot'</span>)
 xLimits = get(gca, <span class="string">'xLim'</span>);
 yLimits = get(gca, <span class="string">'yLim'</span>);
 </pre><img vspace="5" hspace="5" src="matlab_script_3_05.png" alt=""> <p>To avoid the imprecision caused by the determination of the function via sample values, and to get a more detailed understanding of the concept of qq-plots, we now want to reproduce the shown graphic with own code. Thereby the main idea of a qq-plot is to plot quantiles corresponding to an equidistant grid of probabilities against each other. While quantiles of the normal distribution can be calculated, quantiles refering to the distribution of the observed data points are approximated with the respective empirically estimated values.</p><pre class="codeinput"><span class="comment">% arrange entries in chronological order</span>
-sorted = sort(DAX.logRet);
+sorted = sort(daxLogRets);
 
 <span class="comment">% init grid of equidistant probabilities</span>
 associatedCDFvalues = ((1:numel(sorted))/(numel(sorted)+1));
@@ -413,7 +423,7 @@ format <span class="string">short</span>
 </pre><pre class="codeoutput">
 ans =
 
-       1/5761         2/5761         3/5761         4/5761  
+       1/6013         2/6013         3/6013         4/6013  
 
 </pre><pre class="codeinput"><span class="comment">% get associated normal quantile values</span>
 convertToNormalQuantiles = <span class="keyword">...</span>
@@ -453,7 +463,7 @@ opt = optimset(<span class="string">'algorithm'</span>, <span class="string">'sq
 
 <span class="comment">% optimization</span>
 paramHatT = fmincon(nllhT, param0, [], [], [], [], <span class="keyword">...</span>
-    lb, ub, [], opt, DAX.logRet);
+    lb, ub, [], opt, daxLogRets);
 </pre><pre class="codeoutput">
 Local minimum possible. Constraints satisfied.
 
@@ -466,7 +476,7 @@ satisfied to within the default value of the constraint tolerance.
 </pre><p>Associated value-at-risk estimations are given as the quantiles of the fitted Student's t-distribution and can be calculated by inversion.</p><pre class="codeinput"><span class="comment">% apply inverse cumulative distribution function</span>
 varT = icdf(<span class="string">'t'</span>, quants, paramHatT);
 </pre><p>As third alternative, the value-at-risk can be estimated directly based on the observed returns as empirical quantiles.</p><pre class="codeinput"><span class="comment">% estimate VaR based on empirical quantiles</span>
-varEmp = quantile(DAX.logRet, quants);
+varEmp = quantile(daxLogRets, quants);
 
 <span class="comment">% compare different VaR estimations</span>
 compareVaRs = [quants' varNorm' varT' varEmp']
@@ -476,9 +486,9 @@ fprintf(<span class="string">'\nConfLevels Norm Distr T Distr   Emp Quants\n'</s
 </pre><pre class="codeoutput">
 compareVaRs =
 
-    0.0050   -3.7135   -5.0768   -5.2577
-    0.0100   -3.3509   -4.0550   -4.4108
-    0.0500   -2.3603   -2.2208   -2.3123
+    0.0050   -3.6605   -4.9601   -5.2301
+    0.0100   -3.3030   -3.9795   -4.3083
+    0.0500   -2.3262   -2.1994   -2.2898
 
 
 ConfLevels Norm Distr T Distr   Emp Quants
@@ -491,59 +501,61 @@ figure(<span class="string">'position'</span>, [50 50 1200 600]);
 subplot(1, 2, 1);
 
 <span class="comment">% indicate exceedances with logical vector</span>
-exceed = DAX.logRet &lt;= varNorm(lev);
+exceed = daxLogRets &lt;= varNorm(lev);
 
 <span class="comment">% show exceedances in red</span>
-scatter(DAX.dates([logical(0); exceed]), DAX.logRet(exceed), <span class="string">'.r'</span>)
-        <span class="comment">% first date entry left out since DAX.dates refers to</span>
+daxDates = numDates(dax);
+
+scatter(daxDates([logical(0); exceed]), daxLogRets(exceed), <span class="string">'.r'</span>)
+        <span class="comment">% first date entry left out since daxDates refers to</span>
         <span class="comment">% longer time series of prices</span>
 hold <span class="string">on</span>;
 
 <span class="comment">% show non-exceedances in blue</span>
-scatter(DAX.dates([logical(0); ~exceed]), <span class="keyword">...</span>
-    DAX.logRet(~exceed), <span class="string">'.b'</span>)
+scatter(daxDates([logical(0); ~exceed]), <span class="keyword">...</span>
+    daxLogRets(~exceed), <span class="string">'.b'</span>)
 datetick <span class="string">'x'</span>
-set(gca, <span class="string">'xLim'</span>, [DAX.dates(2) DAX.dates(end)]);
+set(gca, <span class="string">'xLim'</span>, [daxDates(2) daxDates(end)]);
 
 <span class="comment">% include VaR estimation</span>
-line([DAX.dates(2) DAX.dates(end)], varNorm(lev)*[1 1], <span class="keyword">...</span>
+line([daxDates(2) daxDates(end)], varNorm(lev)*[1 1], <span class="keyword">...</span>
     <span class="string">'Color'</span>, <span class="string">'k'</span>)
 title([<span class="string">'Exceedance frequency '</span> <span class="keyword">...</span>
-    num2str(sum(exceed)/numel(DAX.logRet), 2) <span class="string">' instead of '</span><span class="keyword">...</span>
+    num2str(sum(exceed)/numel(daxLogRets), 2) <span class="string">' instead of '</span><span class="keyword">...</span>
     num2str(quants(lev))])
 
 <span class="comment">% same plot with results based on Student's t-distribution</span>
 subplot(1, 2, 2);
-exceed2 = DAX.logRet &lt;= varT(lev);
-scatter(DAX.dates([logical(0); exceed2]), <span class="keyword">...</span>
-    DAX.logRet(exceed2), <span class="string">'.r'</span>)
+exceed2 = daxLogRets &lt;= varT(lev);
+scatter(daxDates([logical(0); exceed2]), <span class="keyword">...</span>
+    daxLogRets(exceed2), <span class="string">'.r'</span>)
 hold <span class="string">on</span>;
-scatter(DAX.dates([logical(0); ~exceed2]), <span class="keyword">...</span>
-    DAX.logRet(~exceed2), <span class="string">'.b'</span>)
+scatter(daxDates([logical(0); ~exceed2]), <span class="keyword">...</span>
+    daxLogRets(~exceed2), <span class="string">'.b'</span>)
 datetick <span class="string">'x'</span>
-set(gca, <span class="string">'xLim'</span>, [DAX.dates(2) DAX.dates(end)]);
-line([DAX.dates(2) DAX.dates(end)], varT(lev)*[1 1], <span class="keyword">...</span>
+set(gca, <span class="string">'xLim'</span>, [daxDates(2) daxDates(end)]);
+line([daxDates(2) daxDates(end)], varT(lev)*[1 1], <span class="keyword">...</span>
     <span class="string">'Color'</span>, <span class="string">'k'</span>)
 title([<span class="string">'Exceedance frequency '</span> <span class="keyword">...</span>
-    num2str(sum(exceed2)/numel(DAX.logRet), 2) <span class="string">' instead of '</span><span class="keyword">...</span>
+    num2str(sum(exceed2)/numel(daxLogRets), 2) <span class="string">' instead of '</span><span class="keyword">...</span>
     num2str(quants(lev))])
 </pre><img vspace="5" hspace="5" src="matlab_script_3_07.png" alt=""> <p>For further investigation of the goodness of the respective estimation approaches, all exceedance frequencies are compared to in a table.</p><pre class="codeinput"><span class="comment">% calculate exceedance frequencies for normal distribution</span>
 normFrequ = <span class="keyword">...</span>
-    [sum((DAX.logRet &lt;= varNorm(1))/numel(DAX.logRet));<span class="keyword">...</span>
-    sum((DAX.logRet &lt;= varNorm(2))/numel(DAX.logRet));<span class="keyword">...</span>
-    sum((DAX.logRet &lt;= varNorm(3))/numel(DAX.logRet))];
+    [sum((daxLogRets &lt;= varNorm(1))/numel(daxLogRets));<span class="keyword">...</span>
+    sum((daxLogRets &lt;= varNorm(2))/numel(daxLogRets));<span class="keyword">...</span>
+    sum((daxLogRets &lt;= varNorm(3))/numel(daxLogRets))];
 
 <span class="comment">% calcualte exceedance frequencies for Student's t-distribution</span>
 tFrequ = <span class="keyword">...</span>
-    [sum((DAX.logRet &lt;= varT(1))/numel(DAX.logRet));<span class="keyword">...</span>
-    sum((DAX.logRet &lt;= varT(2))/numel(DAX.logRet));<span class="keyword">...</span>
-    sum((DAX.logRet &lt;= varT(3))/numel(DAX.logRet))];
+    [sum((daxLogRets &lt;= varT(1))/numel(daxLogRets));<span class="keyword">...</span>
+    sum((daxLogRets &lt;= varT(2))/numel(daxLogRets));<span class="keyword">...</span>
+    sum((daxLogRets &lt;= varT(3))/numel(daxLogRets))];
 
 <span class="comment">% calculate exceedance frequencies for empirical quantiles</span>
 empFrequ = <span class="keyword">...</span>
-    [sum((DAX.logRet &lt;= varEmp(1))/numel(DAX.logRet));<span class="keyword">...</span>
-    sum((DAX.logRet &lt;= varEmp(2))/numel(DAX.logRet));<span class="keyword">...</span>
-    sum((DAX.logRet &lt;= varEmp(3))/numel(DAX.logRet))];
+    [sum((daxLogRets &lt;= varEmp(1))/numel(daxLogRets));<span class="keyword">...</span>
+    sum((daxLogRets &lt;= varEmp(2))/numel(daxLogRets));<span class="keyword">...</span>
+    sum((daxLogRets &lt;= varEmp(3))/numel(daxLogRets))];
 
 <span class="comment">% display table</span>
 fprintf(<span class="string">'\nExceedance frequencies:\n'</span>)
@@ -555,12 +567,12 @@ fprintf(<span class="string">'Norm distr   t distr   Emp distr\n'</span>)
 </pre><pre class="codeoutput">
 Exceedance frequencies:
 Norm distr   t distr   Emp distr
-0.01458     0.00642     0.00503
-0.01997     0.01215     0.01007
-0.04792     0.05538     0.05000
+0.01447     0.00682     0.00499
+0.02063     0.01198     0.00998
+0.04741     0.05439     0.05007
 </pre><p>This analysis shows two commonly observable characteristics. First, the exceedance frequencies associated with the empirical estimator are almost exactly the size that we want to observe. However, this should not lead you to erroneously conclude that the empirical estimator is unambiguously the best estimator, since the perfect fit is only achieved in-sample, that is it is achieved only on the data that we used for estimation. This is a classical overfitting problem, since we adjusted the estimated quantiles to exactly match the observed data points in the first place. Examining the out-of-sample properties of the empirical estimator will show that it is not performing equally well when applied to "unseen" data.</p><p>And second, while all three estimators seem to approximately match the demanded exceedance frequencies, the occurrences of the exceedances are clustered through time. That is, exceedances are not distributed uniformly over time, but observing an exceedance at one day increases the likelihood of an additional exceedance within the next days. This weakness of all estimators arises from the fact that we dropped all information of the sample with respect to the time dimension, since we treated returns as i.i.d. realizations of a certain random variable. Hence, estimating risk more adequately requires modeling the observations as time series in order to be able to match temporarily evolving high-volatility phases.</p><h2>Simulation study: empirical quantiles<a name="33"></a></h2><p>In order to examine the properties of the empirical quantiles estimator we now will perform a short simulation study. The idea is to sample observations of a given distribution function, apply the empirical quantiles estimator to the sample data, and check whether we are able to approximately retrieve the quantile values of the original underlying distribution.</p><pre class="codeinput"><span class="comment">% init params</span>
 reps = 10000;       <span class="comment">% number of repetitions</span>
-sampSize = 2500;    <span class="comment">% approximately 10 years of data</span>
+sampSize = 250;    <span class="comment">% approximately 10 years of data</span>
 dist = <span class="string">'t'</span>;         <span class="comment">% underlying distribution</span>
 param = 5;          <span class="comment">% parameters: dimension depending on distr.</span>
 nBins = 30;         <span class="comment">% number of bins in histogram plot</span>
@@ -606,7 +618,7 @@ autoCorrCoeff = zeros(1, nLags);
 <span class="keyword">for</span> ii=1:nLags
     <span class="comment">% get correlation between days of distance ii</span>
     autoCorrCoeff(ii) = <span class="keyword">...</span>
-        corr(DAX.logRet(1:end-ii), DAX.logRet(ii+1:end));
+        corr(daxLogRets(1:end-ii), daxLogRets(ii+1:end));
 <span class="keyword">end</span>
 
 <span class="comment">% plot estimated autocorrelation function</span>
@@ -619,9 +631,9 @@ set(gca, <span class="string">'xGrid'</span>, <span class="string">'on'</span>, 
 
 <span class="comment">% plot autocorrelation using existing MATLAB function</span>
 subplot(1, 2, 2)
-autocorr(DAX.logRet)
+autocorr(daxLogRets)
 </pre><img vspace="5" hspace="5" src="matlab_script_3_09.png" alt=""> <p>Though there might be evidence for autocorrelation at lags 3 and 4, there is rather no clear pattern observable. We now will try to replicate the observed autocorrelation function. First, we will investigate the properties of an AR(1) process by simulating a sample path of it.</p><pre class="codeinput"><span class="comment">% init params</span>
-a = 0.4;    <span class="comment">% autoregression coefficient</span>
+a = 0.8;    <span class="comment">% autoregression coefficient</span>
 n = 10000;   <span class="comment">% path length</span>
 sigma = 0.8;    <span class="comment">% standard deviation residual</span>
 y0 = 0;         <span class="comment">% starting value</span>
@@ -648,8 +660,11 @@ title(<span class="string">'Simulated sample path'</span>)
 subplot(1, 2, 2);
 autocorr(y)
 </pre><img vspace="5" hspace="5" src="matlab_script_3_10.png" alt=""> <p>As can be seen, the autoregressive term of lag 1 causes a significant non-zero autocorrelation function in both first two lags. Since we observed a negative third lag and positive fourth lag, we will take a look at a fourth order autoregressive process.</p><pre class="codeinput"><span class="comment">% init params</span>
-a3 = -0.1;
-a4 = 0.1;
+a1 = 0;
+a2 = 0;
+a3 = -0.06;
+a4 = 0.06;
+
 y0 = 0;
 y1 = 0;
 y2 = 0;
@@ -661,7 +676,7 @@ y = zeros(n, 1);
 y(1:4, 1) = [y0; y1; y2; y3];
 
 <span class="keyword">for</span> ii=5:n
-    y(ii) = a3*y(ii-3)+a4*y(ii-4)+epsilons(ii);
+    y(ii) = a1*y(ii-1) + a2*y(ii-2) + a3*y(ii-3)+a4*y(ii-4)+epsilons(ii);
 <span class="keyword">end</span>
 
 <span class="comment">% plot sample path</span>
@@ -686,7 +701,7 @@ autocorr(y)
 close
 figure(<span class="string">'position'</span>, [50 50 1200 600])
 subplot(1, 2, 1);
-autocorr(DAX.logRet.^2)
+autocorr(daxLogRets.^2)
 title(<span class="string">'real data'</span>)
 subplot(1, 2, 2)
 autocorr(y.^2)
@@ -812,11 +827,11 @@ satisfied to within the default value of the constraint tolerance.
 
 compareToRealParams =
 
-    0.2059    0.6038    0.1894
+    0.1837    0.6175    0.1986
     0.2000    0.6000    0.2000
 
 </pre><p>Given our estimated values we are again able to extract a series of sigma values. These extracted sigma values give us an indication of whether there have been periods of high volatility in the time series or not. The following cell will perform the same analysis for real stock data.</p><pre class="codeinput"><span class="comment">% specify data</span>
-data = DAX.logRet;
+data = daxLogRets;
 
 <span class="comment">% optimization settings</span>
 opt = optimset(<span class="string">'algorithm'</span>, <span class="string">'sqp'</span>);
@@ -844,14 +859,14 @@ close
 figure(<span class="string">'position'</span>, [50 50 1200 600])
 
 subplot(2, 1, 1);
-plot(DAX.dates(2:end), DAX.logRet)
+plot(daxDates(2:end), daxLogRets)
 datetick <span class="string">'x'</span>
-set(gca, <span class="string">'xLim'</span>, [DAX.dates(2) DAX.dates(end)]);
+set(gca, <span class="string">'xLim'</span>, [daxDates(2) daxDates(end)]);
 
 subplot(2, 1, 2);
-plot(DAX.dates(2:end), retrieveSigmas)
+plot(daxDates(2:end), retrieveSigmas)
 datetick <span class="string">'x'</span>
-set(gca, <span class="string">'xLim'</span>, [DAX.dates(2) DAX.dates(end)]);
+set(gca, <span class="string">'xLim'</span>, [daxDates(2) daxDates(end)]);
 </pre><pre class="codeoutput">
 Local minimum possible. Constraints satisfied.
 
@@ -863,8 +878,10 @@ satisfied to within the default value of the constraint tolerance.
 
 </pre><img vspace="5" hspace="5" src="matlab_script_3_15.png" alt=""> <p>Since GARCH is one of the most important models in econometrics, all the standard applications associated with the model are already implemented in the econometrics toolbox of MATLAB. The framework is built on specification of GARCH models using a structure variable, which is the basic component to pass over model specifications between functions. As default model MATLAB has chosen the same GARCH(1,1) model with constant in the variance equation that we already have chosen above, with the one deviation that it also incorporates a constant term in the mean equation. However, we fit the default model to data without further specifications and compare it with our results so far.</p><pre class="codeinput"><span class="comment">% maximum likelihood estimation of parameters</span>
 [coeff, errors, llf, innovations, sigmas, summary] = <span class="keyword">...</span>
-    garchfit(DAX.logRet);
-</pre><pre class="codeoutput">
+    garchfit(daxLogRets);
+</pre><pre class="codeoutput">Warning: GARCHFIT will be removed in a future release. Use ESTIMATE of ARIMA,
+GARCH, EGARCH, and GJR models instead. 
+
 ____________________________________________________________
    Diagnostic Information
 
@@ -895,21 +912,21 @@ ____________________________________________________________
 
                                 Max     Line search  Directional  First-order 
  Iter F-count        f(x)   constraint   steplength   derivative   optimality Procedure 
-    0      5      9714.45        -0.05                                         
-    1     16      9676.37     -0.06484       0.0156         -559     3.87e+03   
-    2     24       9558.4     -0.08613        0.125    -1.64e+03     3.22e+03   
-    3     34      9534.85      -0.1147       0.0312         -769     2.46e+03   
-    4     43      9517.37      -0.1075       0.0625         -476     1.97e+03   
-    5     49      9437.74     -0.07251          0.5         -465     1.52e+03   
-    6     55      9389.59     -0.03626          0.5         -735          848   
-    7     66      9388.81     -0.03569       0.0156         -212     1.97e+03   
-    8     72      9374.79     -0.01785          0.5         -350     1.17e+03   
-    9     83      9374.77      -0.0183       0.0156        -28.8          246   
-   10     90      9374.55     -0.01699         0.25         -146         56.3   
-   11     95      9374.55     -0.01705            1        -16.7         7.05   
-   12    100      9374.55     -0.01701            1        -2.59         3.79   
-   13    105      9374.55     -0.01703            1        -1.13         1.64   
-   14    110      9374.55     -0.01703            1       -0.387       0.0509  Hessian modified  
+    0      5      10047.9        -0.05                                         
+    1     16      10009.4     -0.06484       0.0156         -585     4.05e+03   
+    2     24      9880.73     -0.08613        0.125    -1.74e+03     3.37e+03   
+    3     34      9856.11      -0.1143       0.0313         -804     2.56e+03   
+    4     43      9841.76      -0.1072       0.0625         -473     1.98e+03   
+    5     49      9759.66     -0.07252          0.5         -482     1.54e+03   
+    6     55      9709.73     -0.03626          0.5         -767          908   
+    7     66      9709.49     -0.03569       0.0156         -220     2.29e+03   
+    8     72       9694.8     -0.01785          0.5         -357      1.3e+03   
+    9     83      9694.77     -0.01837       0.0156        -38.7          329   
+   10     90      9694.49     -0.01684         0.25         -222         63.8   
+   11     95      9694.48     -0.01724            1          -18          8.3   
+   12    100      9694.48      -0.0171            1        -5.06         6.85   
+   13    105      9694.48     -0.01711            1        -1.96        0.662   
+   14    110      9694.48     -0.01711            1       -0.219        0.108  Hessian modified  
 
 Local minimum possible. Constraints satisfied.
 
@@ -936,40 +953,40 @@ coeff =
 
           Comment: 'Mean: ARMAX(0,0,0); Variance: GARCH(1,1) '
      Distribution: 'Gaussian'
-                C: 0.0654
+                C: 0.0648
     VarianceModel: 'GARCH'
                 P: 1
                 Q: 1
-                K: 0.0320
-            GARCH: 0.9006
-             ARCH: 0.0824
+                K: 0.0314
+            GARCH: 0.9002
+             ARCH: 0.0827
 
 
 In contrast to that, own values are:
-       K: 0.0317
-   GARCH: 0.9008
-    ARCH: 0.0825
+       K: 0.0311
+   GARCH: 0.9005
+    ARCH: 0.0828
 
 logLikelihoods =
 
    1.0e+03 *
 
-   -9.3863   -9.3745
+   -9.7068   -9.6945
 
 </pre><p>As the displayed values show, there are no substantial deviations, since the constant term in the mean equation is rather small. However, the garchfit function conveniently returns some more outputs, which are useful for further investigations. For example, previous plots easily can be replicated.</p><pre class="codeinput">close
 figure(<span class="string">'position'</span>, [50 50 1200 600])
 subplot(2, 1, 1)
-plot(DAX.dates(2:end), DAX.logRet)
+plot(daxDates(2:end), daxLogRets)
 datetick <span class="string">'x'</span>
-set(gca, <span class="string">'xLim'</span>, [DAX.dates(2) DAX.dates(end)]);
+set(gca, <span class="string">'xLim'</span>, [daxDates(2) daxDates(end)]);
 
 subplot(2, 1, 2)
-plot(DAX.dates(2:end), sigmas)
+plot(daxDates(2:end), sigmas)
 datetick <span class="string">'x'</span>
-set(gca, <span class="string">'xLim'</span>, [DAX.dates(2) DAX.dates(end)]);
+set(gca, <span class="string">'xLim'</span>, [daxDates(2) daxDates(end)]);
 </pre><img vspace="5" hspace="5" src="matlab_script_3_16.png" alt=""> <p>Furthermore, it is easy to derive the standardized returns, where distortions from time-varying conditional first two moments have been extracted. Since the distribution of these standardized returns is the foundation in our maximum likelihood estimation procedure, it is reasonable to examine our assumption of normally distributed conditional returns.</p><pre class="codeinput"><span class="comment">% init params</span>
 nBins = 30;
-n = numel(DAX.logRet);     <span class="comment">% number of observations</span>
+n = numel(daxLogRets);     <span class="comment">% number of observations</span>
 
 <span class="comment">% get standardized returns</span>
 stdRets = innovations./sigmas;
@@ -987,9 +1004,9 @@ grid = muhat-4:0.1:muhat+4;
 plot(grid, normpdf(grid, muhat, sigmahat), <span class="string">'r'</span>, <span class="string">'LineWidth'</span>, 2);
 title(<span class="string">'relative frequency normal distribution'</span>)
 </pre><img vspace="5" hspace="5" src="matlab_script_3_17.png" alt=""> <p>Since the figure does not exhibit substantial deviations, our priorly made assumption of conditional normally distributed returns seems to be sustainable. The next step now is to examine the performance of the GARCH model in a backtesting procedure.</p><pre class="codeinput"><span class="comment">% preallocate VaR vector</span>
-vars = zeros(numel(quants), numel(DAX.logRet));
+vars = zeros(numel(quants), numel(daxLogRets));
 
-<span class="keyword">for</span> ii=1:numel(DAX.logRet)
+<span class="keyword">for</span> ii=1:numel(daxLogRets)
     <span class="comment">% get sigma value</span>
     curr_sigma = sigmas(ii);
     vars(:, ii) = norminv(quants', coeff.C, curr_sigma);
@@ -997,38 +1014,37 @@ vars = zeros(numel(quants), numel(DAX.logRet));
 
 <span class="keyword">for</span> ii=1:numel(quants)
     <span class="comment">% get exceedances</span>
-    exceeds = (DAX.logRet' &lt;= vars(ii, :));
+    exceeds = (daxLogRets' &lt;= vars(ii, :));
 
     <span class="comment">% include in figure</span>
     figure(<span class="string">'position'</span>, [50 50 1200 600])
-    plot(DAX.dates([logical(0) ~exceeds]), <span class="keyword">...</span>
-        DAX.logRet(~exceeds), <span class="string">'.'</span>)
+    plot(daxDates([logical(0) ~exceeds]), <span class="keyword">...</span>
+        daxLogRets(~exceeds), <span class="string">'.'</span>)
     hold <span class="string">on</span>;
-    plot(DAX.dates([logical(0) exceeds]), <span class="keyword">...</span>
-        DAX.logRet(exceeds), <span class="string">'.r'</span>, <span class="string">'MarkerSize'</span>, 12)
+    plot(daxDates([logical(0) exceeds]), <span class="keyword">...</span>
+        daxLogRets(exceeds), <span class="string">'.r'</span>, <span class="string">'MarkerSize'</span>, 12)
     datetick <span class="string">'x'</span>
-    set(gca, <span class="string">'xLim'</span>, [DAX.dates(2) DAX.dates(end)], <span class="keyword">...</span>
-        <span class="string">'yLim'</span>, [floor(min(DAX.logRet))-1 0]);
+    set(gca, <span class="string">'xLim'</span>, [daxDates(2) daxDates(end)], <span class="keyword">...</span>
+        <span class="string">'yLim'</span>, [floor(min(daxLogRets))-1 0]);
 
     <span class="comment">% include line for VaR estimations</span>
     hold <span class="string">on</span>;
-    plot(DAX.dates(2:end), vars(ii, :), <span class="string">'-k'</span>)
+    plot(daxDates(2:end), vars(ii, :), <span class="string">'-k'</span>)
 
     <span class="comment">% calculate exceedance frequency</span>
-    frequ = sum(exceeds)/numel(DAX.logRet);
+    frequ = sum(exceeds)/numel(daxLogRets);
 
     title([<span class="string">'Exceedance frequency: '</span> num2str(frequ, 3)<span class="keyword">...</span>
         <span class="string">' instead of '</span> num2str(quants(ii), 3)])
 <span class="keyword">end</span>
 </pre><img vspace="5" hspace="5" src="matlab_script_3_18.png" alt=""> <img vspace="5" hspace="5" src="matlab_script_3_19.png" alt=""> <img vspace="5" hspace="5" src="matlab_script_3_20.png" alt=""> <pre class="codeinput">close <span class="string">all</span>
-</pre><p class="footer"><br>
-      Published with MATLAB&reg; 7.14<br></p></div><!--
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2013b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% Value-at-risk and GARCH
 % Christian Groll
 %
-% Seminar für Finanzökonometrie, Ludwig-Maximilians-Universität 
-% M�nchen. 
+% Chair of Financial Econometrics, Ludwig-Maximilians-University 
+% Munich. 
 %
 % All rights reserved.
 
@@ -1361,13 +1377,11 @@ dateBeg = '01011990';       %  day, month, year: ddmmyyyy
 dateEnd = datestr(today, 'ddmmyyyy');  % today as last date
 
 % load data
-daxCrude = hist_stock_data(dateBeg, dateEnd, tickSym);
-
-% process data
-[DAX.dates DAX.prices] = processData(daxCrude);
+dax = getPrices(dateBeg, dateEnd, {tickSym});
 
 % calculate percentage log returns
-DAX.logRet = 100*(log(DAX.prices(2:end))-log(DAX.prices(1:end-1)));
+daxRetsTable = price2retWithHolidays(dax);
+daxLogRets = daxRetsTable{:,:}*100;
 
 %%
 % Fitting parameters of normal distribution to data.
@@ -1382,10 +1396,10 @@ opt = optimset('display', 'off', 'algorithm', 'sqp');
 % estimate normal distribution parameters
 paramsHat = ...
    fmincon(nllh, params0, ...
-   [], [], [], [], lb, ub, [], opt, DAX.logRet);
+   [], [], [], [], lb, ub, [], opt, daxLogRets);
 
 % compare parameters with estimation from existing function
-[muHat sigmaHat] = normfit(DAX.logRet);
+[muHat sigmaHat] = normfit(daxLogRets);
 paramComparison = [paramsHat; muHat sigmaHat]
 
 %%
@@ -1398,13 +1412,13 @@ paramComparison = [paramsHat; muHat sigmaHat]
 % amplified view on the lower tail.
 
 % show normalized histogram with density of normal distribution
-[counterX locationsX] = hist(DAX.logRet, 50);
+[counterX locationsX] = hist(daxLogRets, 50);
 width = diff(locationsX(1:2));
 
 % show bar diagram in first subplot
 figure('position', [50 50 1200 600])
 subplot(1, 2, 1);
-bar(locationsX, counterX/(numel(DAX.logRet)*width), 1);
+bar(locationsX, counterX/(numel(daxLogRets)*width), 1);
 hold on;
 
 % init grid
@@ -1419,7 +1433,7 @@ title('relative frequencies with normal distribution')
 % show lower tail region amplified
 subplot(1, 2, 2);
 hold on;
-bar(locationsX, counterX/(numel(DAX.logRet)*width), 1);
+bar(locationsX, counterX/(numel(daxLogRets)*width), 1);
 plot(grid, normpdf(grid, paramsHat(1), paramsHat(2)), ...
     'r', 'LineWidth', 2);
 axis([paramsHat(1)-7*paramsHat(2) paramsHat(1)-2*paramsHat(2)...
@@ -1448,10 +1462,10 @@ figure('position', [50 50 1200 600])
 subplot(1, 2, 1)
 
 % generate sample points of given distribution
-sample = normrnd(paramsHat(1), paramsHat(2), numel(DAX.logRet), 1);
+sample = normrnd(paramsHat(1), paramsHat(2), numel(daxLogRets), 1);
 
 % qq-plot: empirical returns vs. estimated normal distribution
-qqplot(DAX.logRet, sample);
+qqplot(daxLogRets, sample);
 title('built-in qqplot')
 xLimits = get(gca, 'xLim');
 yLimits = get(gca, 'yLim');
@@ -1469,7 +1483,7 @@ yLimits = get(gca, 'yLim');
 % estimated values.
 
 % arrange entries in chronological order
-sorted = sort(DAX.logRet);
+sorted = sort(daxLogRets);
 
 % init grid of equidistant probabilities
 associatedCDFvalues = ((1:numel(sorted))/(numel(sorted)+1));
@@ -1539,7 +1553,7 @@ opt = optimset('algorithm', 'sqp');
 
 % optimization
 paramHatT = fmincon(nllhT, param0, [], [], [], [], ...
-    lb, ub, [], opt, DAX.logRet);
+    lb, ub, [], opt, daxLogRets);
 
 %%
 % Associated value-at-risk estimations are given as the quantiles
@@ -1554,7 +1568,7 @@ varT = icdf('t', quants, paramHatT);
 % directly based on the observed returns as empirical quantiles.
 
 % estimate VaR based on empirical quantiles
-varEmp = quantile(DAX.logRet, quants);
+varEmp = quantile(daxLogRets, quants);
 
 % compare different VaR estimations
 compareVaRs = [quants' varNorm' varT' varEmp']
@@ -1589,41 +1603,43 @@ figure('position', [50 50 1200 600]);
 subplot(1, 2, 1);
 
 % indicate exceedances with logical vector
-exceed = DAX.logRet <= varNorm(lev);
+exceed = daxLogRets <= varNorm(lev);
 
 % show exceedances in red
-scatter(DAX.dates([logical(0); exceed]), DAX.logRet(exceed), '.r')
-        % first date entry left out since DAX.dates refers to
+daxDates = numDates(dax);
+
+scatter(daxDates([logical(0); exceed]), daxLogRets(exceed), '.r')
+        % first date entry left out since daxDates refers to
         % longer time series of prices
 hold on;
 
 % show non-exceedances in blue
-scatter(DAX.dates([logical(0); ~exceed]), ...
-    DAX.logRet(~exceed), '.b')
+scatter(daxDates([logical(0); ~exceed]), ...
+    daxLogRets(~exceed), '.b')
 datetick 'x'
-set(gca, 'xLim', [DAX.dates(2) DAX.dates(end)]);
+set(gca, 'xLim', [daxDates(2) daxDates(end)]);
 
 % include VaR estimation
-line([DAX.dates(2) DAX.dates(end)], varNorm(lev)*[1 1], ...
+line([daxDates(2) daxDates(end)], varNorm(lev)*[1 1], ...
     'Color', 'k')
 title(['Exceedance frequency ' ...
-    num2str(sum(exceed)/numel(DAX.logRet), 2) ' instead of '...
+    num2str(sum(exceed)/numel(daxLogRets), 2) ' instead of '...
     num2str(quants(lev))])
 
 % same plot with results based on Student's t-distribution
 subplot(1, 2, 2);
-exceed2 = DAX.logRet <= varT(lev);
-scatter(DAX.dates([logical(0); exceed2]), ...
-    DAX.logRet(exceed2), '.r')
+exceed2 = daxLogRets <= varT(lev);
+scatter(daxDates([logical(0); exceed2]), ...
+    daxLogRets(exceed2), '.r')
 hold on;
-scatter(DAX.dates([logical(0); ~exceed2]), ...
-    DAX.logRet(~exceed2), '.b')
+scatter(daxDates([logical(0); ~exceed2]), ...
+    daxLogRets(~exceed2), '.b')
 datetick 'x'
-set(gca, 'xLim', [DAX.dates(2) DAX.dates(end)]);
-line([DAX.dates(2) DAX.dates(end)], varT(lev)*[1 1], ...
+set(gca, 'xLim', [daxDates(2) daxDates(end)]);
+line([daxDates(2) daxDates(end)], varT(lev)*[1 1], ...
     'Color', 'k')
 title(['Exceedance frequency ' ...
-    num2str(sum(exceed2)/numel(DAX.logRet), 2) ' instead of '...
+    num2str(sum(exceed2)/numel(daxLogRets), 2) ' instead of '...
     num2str(quants(lev))])
 
 %%
@@ -1633,21 +1649,21 @@ title(['Exceedance frequency ' ...
 
 % calculate exceedance frequencies for normal distribution
 normFrequ = ...
-    [sum((DAX.logRet <= varNorm(1))/numel(DAX.logRet));...
-    sum((DAX.logRet <= varNorm(2))/numel(DAX.logRet));...
-    sum((DAX.logRet <= varNorm(3))/numel(DAX.logRet))];
+    [sum((daxLogRets <= varNorm(1))/numel(daxLogRets));...
+    sum((daxLogRets <= varNorm(2))/numel(daxLogRets));...
+    sum((daxLogRets <= varNorm(3))/numel(daxLogRets))];
 
 % calcualte exceedance frequencies for Student's t-distribution
 tFrequ = ...
-    [sum((DAX.logRet <= varT(1))/numel(DAX.logRet));...
-    sum((DAX.logRet <= varT(2))/numel(DAX.logRet));...
-    sum((DAX.logRet <= varT(3))/numel(DAX.logRet))];
+    [sum((daxLogRets <= varT(1))/numel(daxLogRets));...
+    sum((daxLogRets <= varT(2))/numel(daxLogRets));...
+    sum((daxLogRets <= varT(3))/numel(daxLogRets))];
 
 % calculate exceedance frequencies for empirical quantiles
 empFrequ = ...
-    [sum((DAX.logRet <= varEmp(1))/numel(DAX.logRet));...
-    sum((DAX.logRet <= varEmp(2))/numel(DAX.logRet));...
-    sum((DAX.logRet <= varEmp(3))/numel(DAX.logRet))];
+    [sum((daxLogRets <= varEmp(1))/numel(daxLogRets));...
+    sum((daxLogRets <= varEmp(2))/numel(daxLogRets));...
+    sum((daxLogRets <= varEmp(3))/numel(daxLogRets))];
 
 % display table
 fprintf('\nExceedance frequencies:\n')
@@ -1694,7 +1710,7 @@ end
 
 % init params
 reps = 10000;       % number of repetitions
-sampSize = 2500;    % approximately 10 years of data
+sampSize = 250;    % approximately 10 years of data
 dist = 't';         % underlying distribution 
 param = 5;          % parameters: dimension depending on distr.
 nBins = 30;         % number of bins in histogram plot
@@ -1760,7 +1776,7 @@ autoCorrCoeff = zeros(1, nLags);
 for ii=1:nLags
     % get correlation between days of distance ii
     autoCorrCoeff(ii) = ...
-        corr(DAX.logRet(1:end-ii), DAX.logRet(ii+1:end));
+        corr(daxLogRets(1:end-ii), daxLogRets(ii+1:end));
 end
 
 % plot estimated autocorrelation function
@@ -1773,7 +1789,7 @@ set(gca, 'xGrid', 'on', 'yGrid', 'on')
 
 % plot autocorrelation using existing MATLAB function
 subplot(1, 2, 2)
-autocorr(DAX.logRet)
+autocorr(daxLogRets)
 
 %%
 % Though there might be evidence for autocorrelation at lags 3
@@ -1783,7 +1799,7 @@ autocorr(DAX.logRet)
 % simulating a sample path of it.
 
 % init params
-a = 0.4;    % autoregression coefficient
+a = 0.8;    % autoregression coefficient
 n = 10000;   % path length
 sigma = 0.8;    % standard deviation residual
 y0 = 0;         % starting value
@@ -1818,8 +1834,11 @@ autocorr(y)
 % autoregressive process.
 
 % init params
-a3 = -0.1;
-a4 = 0.1;
+a1 = 0;
+a2 = 0;
+a3 = -0.06;
+a4 = 0.06;
+
 y0 = 0;
 y1 = 0;
 y2 = 0;
@@ -1831,7 +1850,7 @@ y = zeros(n, 1);
 y(1:4, 1) = [y0; y1; y2; y3];
 
 for ii=5:n
-    y(ii) = a3*y(ii-3)+a4*y(ii-4)+epsilons(ii);
+    y(ii) = a1*y(ii-1) + a2*y(ii-2) + a3*y(ii-3)+a4*y(ii-4)+epsilons(ii);
 end
 
 % plot sample path
@@ -1864,7 +1883,7 @@ autocorr(y)
 close
 figure('position', [50 50 1200 600])
 subplot(1, 2, 1);
-autocorr(DAX.logRet.^2)
+autocorr(daxLogRets.^2)
 title('real data')
 subplot(1, 2, 2)
 autocorr(y.^2)
@@ -2081,7 +2100,7 @@ compareToRealParams = [paramsHat; params]
 % perform the same analysis for real stock data.
 
 % specify data
-data = DAX.logRet;
+data = daxLogRets;
 
 % optimization settings
 opt = optimset('algorithm', 'sqp');
@@ -2109,14 +2128,14 @@ close
 figure('position', [50 50 1200 600])
 
 subplot(2, 1, 1);
-plot(DAX.dates(2:end), DAX.logRet)
+plot(daxDates(2:end), daxLogRets)
 datetick 'x'
-set(gca, 'xLim', [DAX.dates(2) DAX.dates(end)]);
+set(gca, 'xLim', [daxDates(2) daxDates(end)]);
 
 subplot(2, 1, 2);
-plot(DAX.dates(2:end), retrieveSigmas)
+plot(daxDates(2:end), retrieveSigmas)
 datetick 'x'
-set(gca, 'xLim', [DAX.dates(2) DAX.dates(end)]);
+set(gca, 'xLim', [daxDates(2) daxDates(end)]);
 
 
 %%
@@ -2135,7 +2154,7 @@ set(gca, 'xLim', [DAX.dates(2) DAX.dates(end)]);
 
 % maximum likelihood estimation of parameters
 [coeff, errors, llf, innovations, sigmas, summary] = ...
-    garchfit(DAX.logRet);
+    garchfit(daxLogRets);
 
 %%
 % Displaying the estimated coefficient structure allows
@@ -2165,14 +2184,14 @@ logLikelihoods = [-nllhVal llf]
 close
 figure('position', [50 50 1200 600])
 subplot(2, 1, 1)
-plot(DAX.dates(2:end), DAX.logRet)
+plot(daxDates(2:end), daxLogRets)
 datetick 'x'
-set(gca, 'xLim', [DAX.dates(2) DAX.dates(end)]);
+set(gca, 'xLim', [daxDates(2) daxDates(end)]);
 
 subplot(2, 1, 2)
-plot(DAX.dates(2:end), sigmas)
+plot(daxDates(2:end), sigmas)
 datetick 'x'
-set(gca, 'xLim', [DAX.dates(2) DAX.dates(end)]);
+set(gca, 'xLim', [daxDates(2) daxDates(end)]);
 
 %%
 % Furthermore, it is easy to derive the standardized returns,
@@ -2184,7 +2203,7 @@ set(gca, 'xLim', [DAX.dates(2) DAX.dates(end)]);
 
 % init params
 nBins = 30;
-n = numel(DAX.logRet);     % number of observations
+n = numel(daxLogRets);     % number of observations
 
 % get standardized returns
 stdRets = innovations./sigmas;
@@ -2210,9 +2229,9 @@ title('relative frequency normal distribution')
 % procedure.
 
 % preallocate VaR vector
-vars = zeros(numel(quants), numel(DAX.logRet));
+vars = zeros(numel(quants), numel(daxLogRets));
 
-for ii=1:numel(DAX.logRet)
+for ii=1:numel(daxLogRets)
     % get sigma value
     curr_sigma = sigmas(ii);
     vars(:, ii) = norminv(quants', coeff.C, curr_sigma);
@@ -2220,25 +2239,25 @@ end
 
 for ii=1:numel(quants)
     % get exceedances
-    exceeds = (DAX.logRet' <= vars(ii, :));
+    exceeds = (daxLogRets' <= vars(ii, :));
     
     % include in figure
     figure('position', [50 50 1200 600])
-    plot(DAX.dates([logical(0) ~exceeds]), ...
-        DAX.logRet(~exceeds), '.')
+    plot(daxDates([logical(0) ~exceeds]), ...
+        daxLogRets(~exceeds), '.')
     hold on;
-    plot(DAX.dates([logical(0) exceeds]), ...
-        DAX.logRet(exceeds), '.r', 'MarkerSize', 12)
+    plot(daxDates([logical(0) exceeds]), ...
+        daxLogRets(exceeds), '.r', 'MarkerSize', 12)
     datetick 'x'
-    set(gca, 'xLim', [DAX.dates(2) DAX.dates(end)], ...
-        'yLim', [floor(min(DAX.logRet))-1 0]);
+    set(gca, 'xLim', [daxDates(2) daxDates(end)], ...
+        'yLim', [floor(min(daxLogRets))-1 0]);
 
     % include line for VaR estimations
     hold on;
-    plot(DAX.dates(2:end), vars(ii, :), '-k')
+    plot(daxDates(2:end), vars(ii, :), '-k')
 
     % calculate exceedance frequency
-    frequ = sum(exceeds)/numel(DAX.logRet);
+    frequ = sum(exceeds)/numel(daxLogRets);
     
     title(['Exceedance frequency: ' num2str(frequ, 3)...
         ' instead of ' num2str(quants(ii), 3)])

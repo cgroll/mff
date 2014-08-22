@@ -1,6 +1,10 @@
 %% Matlab notes
 % This script contains notes, shortcuts and customizations for Matlab.
 
+%% Course requirements:
+% - git and github account
+% - MATLAB coursework account
+
 %% Customizations
 
 % preferences: (leave open at beginning)
@@ -14,6 +18,30 @@
 % - get rid of toolbars?
 
 % beep off?
+
+%% MATLAB IDE features
+% - Debugger
+% - profiler
+% - command window shortcuts: up, down, autocomplete
+% - file diff
+% - change variable names for multiple occurrences
+
+%% Some additional language features
+% - anonymous functions
+% - x(:)
+% - varfun: apply function to table columns
+
+%% Further interesting topics
+% - Quandl
+% - parallel computing
+% - Dataset / Table / Time Series objects
+% - Unit testing
+
+%% General programming topics
+% - git
+% - best practices
+% - folder structure
+% - floating point arithmetic
 
 %% Shortcuts
 
@@ -64,12 +92,3 @@ cd
 % -> Add to path
 % -> Selected folders and subfolders
 
-%% Further interesting topics
-% - Quandl
-% - Debugger
-% - parallel computing
-% - profiler
-% - Dataset / Table / Time Series objects
-% - Unit testing
-% - git
-% - best practices

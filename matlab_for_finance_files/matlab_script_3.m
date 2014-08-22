@@ -335,13 +335,11 @@ dateBeg = '01011990';       %  day, month, year: ddmmyyyy
 dateEnd = datestr(today, 'ddmmyyyy');  % today as last date
 
 % load data
-daxCrude = hist_stock_data(dateBeg, dateEnd, tickSym);
-
-% process data
-[DAX.dates DAX.prices] = processData(daxCrude);
+dax = getPrices(dateBeg, dateEnd, {tickSym});
 
 % calculate percentage log returns
-DAX.logRet = 100*(log(DAX.prices(2:end))-log(DAX.prices(1:end-1)));
+daxRetsTable = price2retWithHolidays(dax);
+daxLogRets = daxRetsTable{:,:}*100;
 
 %%
 % Fitting parameters of normal distribution to data.
@@ -356,10 +354,10 @@ opt = optimset('display', 'off', 'algorithm', 'sqp');
 % estimate normal distribution parameters
 paramsHat = ...
    fmincon(nllh, params0, ...
-   [], [], [], [], lb, ub, [], opt, DAX.logRet);
+   [], [], [], [], lb, ub, [], opt, daxLogRets);
 
 % compare parameters with estimation from existing function
-[muHat sigmaHat] = normfit(DAX.logRet);
+[muHat sigmaHat] = normfit(daxLogRets);
 paramComparison = [paramsHat; muHat sigmaHat]
 
 %%
@@ -372,13 +370,13 @@ paramComparison = [paramsHat; muHat sigmaHat]
 % amplified view on the lower tail.
 
 % show normalized histogram with density of normal distribution
-[counterX locationsX] = hist(DAX.logRet, 50);
+[counterX locationsX] = hist(daxLogRets, 50);
 width = diff(locationsX(1:2));
 
 % show bar diagram in first subplot
 figure('position', [50 50 1200 600])
 subplot(1, 2, 1);
-bar(locationsX, counterX/(numel(DAX.logRet)*width), 1);
+bar(locationsX, counterX/(numel(daxLogRets)*width), 1);
 hold on;
 
 % init grid
@@ -393,7 +391,7 @@ title('relative frequencies with normal distribution')
 % show lower tail region amplified
 subplot(1, 2, 2);
 hold on;
-bar(locationsX, counterX/(numel(DAX.logRet)*width), 1);
+bar(locationsX, counterX/(numel(daxLogRets)*width), 1);
 plot(grid, normpdf(grid, paramsHat(1), paramsHat(2)), ...
     'r', 'LineWidth', 2);
 axis([paramsHat(1)-7*paramsHat(2) paramsHat(1)-2*paramsHat(2)...
@@ -422,10 +420,10 @@ figure('position', [50 50 1200 600])
 subplot(1, 2, 1)
 
 % generate sample points of given distribution
-sample = normrnd(paramsHat(1), paramsHat(2), numel(DAX.logRet), 1);
+sample = normrnd(paramsHat(1), paramsHat(2), numel(daxLogRets), 1);
 
 % qq-plot: empirical returns vs. estimated normal distribution
-qqplot(DAX.logRet, sample);
+qqplot(daxLogRets, sample);
 title('built-in qqplot')
 xLimits = get(gca, 'xLim');
 yLimits = get(gca, 'yLim');
@@ -443,7 +441,7 @@ yLimits = get(gca, 'yLim');
 % estimated values.
 
 % arrange entries in chronological order
-sorted = sort(DAX.logRet);
+sorted = sort(daxLogRets);
 
 % init grid of equidistant probabilities
 associatedCDFvalues = ((1:numel(sorted))/(numel(sorted)+1));
@@ -513,7 +511,7 @@ opt = optimset('algorithm', 'sqp');
 
 % optimization
 paramHatT = fmincon(nllhT, param0, [], [], [], [], ...
-    lb, ub, [], opt, DAX.logRet);
+    lb, ub, [], opt, daxLogRets);
 
 %%
 % Associated value-at-risk estimations are given as the quantiles
@@ -528,7 +526,7 @@ varT = icdf('t', quants, paramHatT);
 % directly based on the observed returns as empirical quantiles.
 
 % estimate VaR based on empirical quantiles
-varEmp = quantile(DAX.logRet, quants);
+varEmp = quantile(daxLogRets, quants);
 
 % compare different VaR estimations
 compareVaRs = [quants' varNorm' varT' varEmp']
@@ -563,41 +561,43 @@ figure('position', [50 50 1200 600]);
 subplot(1, 2, 1);
 
 % indicate exceedances with logical vector
-exceed = DAX.logRet <= varNorm(lev);
+exceed = daxLogRets <= varNorm(lev);
 
 % show exceedances in red
-scatter(DAX.dates([logical(0); exceed]), DAX.logRet(exceed), '.r')
-        % first date entry left out since DAX.dates refers to
+daxDates = numDates(dax);
+
+scatter(daxDates([logical(0); exceed]), daxLogRets(exceed), '.r')
+        % first date entry left out since daxDates refers to
         % longer time series of prices
 hold on;
 
 % show non-exceedances in blue
-scatter(DAX.dates([logical(0); ~exceed]), ...
-    DAX.logRet(~exceed), '.b')
+scatter(daxDates([logical(0); ~exceed]), ...
+    daxLogRets(~exceed), '.b')
 datetick 'x'
-set(gca, 'xLim', [DAX.dates(2) DAX.dates(end)]);
+set(gca, 'xLim', [daxDates(2) daxDates(end)]);
 
 % include VaR estimation
-line([DAX.dates(2) DAX.dates(end)], varNorm(lev)*[1 1], ...
+line([daxDates(2) daxDates(end)], varNorm(lev)*[1 1], ...
     'Color', 'k')
 title(['Exceedance frequency ' ...
-    num2str(sum(exceed)/numel(DAX.logRet), 2) ' instead of '...
+    num2str(sum(exceed)/numel(daxLogRets), 2) ' instead of '...
     num2str(quants(lev))])
 
 % same plot with results based on Student's t-distribution
 subplot(1, 2, 2);
-exceed2 = DAX.logRet <= varT(lev);
-scatter(DAX.dates([logical(0); exceed2]), ...
-    DAX.logRet(exceed2), '.r')
+exceed2 = daxLogRets <= varT(lev);
+scatter(daxDates([logical(0); exceed2]), ...
+    daxLogRets(exceed2), '.r')
 hold on;
-scatter(DAX.dates([logical(0); ~exceed2]), ...
-    DAX.logRet(~exceed2), '.b')
+scatter(daxDates([logical(0); ~exceed2]), ...
+    daxLogRets(~exceed2), '.b')
 datetick 'x'
-set(gca, 'xLim', [DAX.dates(2) DAX.dates(end)]);
-line([DAX.dates(2) DAX.dates(end)], varT(lev)*[1 1], ...
+set(gca, 'xLim', [daxDates(2) daxDates(end)]);
+line([daxDates(2) daxDates(end)], varT(lev)*[1 1], ...
     'Color', 'k')
 title(['Exceedance frequency ' ...
-    num2str(sum(exceed2)/numel(DAX.logRet), 2) ' instead of '...
+    num2str(sum(exceed2)/numel(daxLogRets), 2) ' instead of '...
     num2str(quants(lev))])
 
 %%
@@ -607,21 +607,21 @@ title(['Exceedance frequency ' ...
 
 % calculate exceedance frequencies for normal distribution
 normFrequ = ...
-    [sum((DAX.logRet <= varNorm(1))/numel(DAX.logRet));...
-    sum((DAX.logRet <= varNorm(2))/numel(DAX.logRet));...
-    sum((DAX.logRet <= varNorm(3))/numel(DAX.logRet))];
+    [sum((daxLogRets <= varNorm(1))/numel(daxLogRets));...
+    sum((daxLogRets <= varNorm(2))/numel(daxLogRets));...
+    sum((daxLogRets <= varNorm(3))/numel(daxLogRets))];
 
 % calcualte exceedance frequencies for Student's t-distribution
 tFrequ = ...
-    [sum((DAX.logRet <= varT(1))/numel(DAX.logRet));...
-    sum((DAX.logRet <= varT(2))/numel(DAX.logRet));...
-    sum((DAX.logRet <= varT(3))/numel(DAX.logRet))];
+    [sum((daxLogRets <= varT(1))/numel(daxLogRets));...
+    sum((daxLogRets <= varT(2))/numel(daxLogRets));...
+    sum((daxLogRets <= varT(3))/numel(daxLogRets))];
 
 % calculate exceedance frequencies for empirical quantiles
 empFrequ = ...
-    [sum((DAX.logRet <= varEmp(1))/numel(DAX.logRet));...
-    sum((DAX.logRet <= varEmp(2))/numel(DAX.logRet));...
-    sum((DAX.logRet <= varEmp(3))/numel(DAX.logRet))];
+    [sum((daxLogRets <= varEmp(1))/numel(daxLogRets));...
+    sum((daxLogRets <= varEmp(2))/numel(daxLogRets));...
+    sum((daxLogRets <= varEmp(3))/numel(daxLogRets))];
 
 % display table
 fprintf('\nExceedance frequencies:\n')
@@ -668,7 +668,7 @@ end
 
 % init params
 reps = 10000;       % number of repetitions
-sampSize = 2500;    % approximately 10 years of data
+sampSize = 250;    % approximately 10 years of data
 dist = 't';         % underlying distribution 
 param = 5;          % parameters: dimension depending on distr.
 nBins = 30;         % number of bins in histogram plot
@@ -734,7 +734,7 @@ autoCorrCoeff = zeros(1, nLags);
 for ii=1:nLags
     % get correlation between days of distance ii
     autoCorrCoeff(ii) = ...
-        corr(DAX.logRet(1:end-ii), DAX.logRet(ii+1:end));
+        corr(daxLogRets(1:end-ii), daxLogRets(ii+1:end));
 end
 
 % plot estimated autocorrelation function
@@ -747,7 +747,7 @@ set(gca, 'xGrid', 'on', 'yGrid', 'on')
 
 % plot autocorrelation using existing MATLAB function
 subplot(1, 2, 2)
-autocorr(DAX.logRet)
+autocorr(daxLogRets)
 
 %%
 % Though there might be evidence for autocorrelation at lags 3
@@ -757,7 +757,7 @@ autocorr(DAX.logRet)
 % simulating a sample path of it.
 
 % init params
-a = 0.4;    % autoregression coefficient
+a = 0.8;    % autoregression coefficient
 n = 10000;   % path length
 sigma = 0.8;    % standard deviation residual
 y0 = 0;         % starting value
@@ -792,8 +792,11 @@ autocorr(y)
 % autoregressive process.
 
 % init params
-a3 = -0.1;
-a4 = 0.1;
+a1 = 0;
+a2 = 0;
+a3 = -0.06;
+a4 = 0.06;
+
 y0 = 0;
 y1 = 0;
 y2 = 0;
@@ -805,7 +808,7 @@ y = zeros(n, 1);
 y(1:4, 1) = [y0; y1; y2; y3];
 
 for ii=5:n
-    y(ii) = a3*y(ii-3)+a4*y(ii-4)+epsilons(ii);
+    y(ii) = a1*y(ii-1) + a2*y(ii-2) + a3*y(ii-3)+a4*y(ii-4)+epsilons(ii);
 end
 
 % plot sample path
@@ -838,7 +841,7 @@ autocorr(y)
 close
 figure('position', [50 50 1200 600])
 subplot(1, 2, 1);
-autocorr(DAX.logRet.^2)
+autocorr(daxLogRets.^2)
 title('real data')
 subplot(1, 2, 2)
 autocorr(y.^2)
@@ -1055,7 +1058,7 @@ compareToRealParams = [paramsHat; params]
 % perform the same analysis for real stock data.
 
 % specify data
-data = DAX.logRet;
+data = daxLogRets;
 
 % optimization settings
 opt = optimset('algorithm', 'sqp');
@@ -1083,14 +1086,14 @@ close
 figure('position', [50 50 1200 600])
 
 subplot(2, 1, 1);
-plot(DAX.dates(2:end), DAX.logRet)
+plot(daxDates(2:end), daxLogRets)
 datetick 'x'
-set(gca, 'xLim', [DAX.dates(2) DAX.dates(end)]);
+set(gca, 'xLim', [daxDates(2) daxDates(end)]);
 
 subplot(2, 1, 2);
-plot(DAX.dates(2:end), retrieveSigmas)
+plot(daxDates(2:end), retrieveSigmas)
 datetick 'x'
-set(gca, 'xLim', [DAX.dates(2) DAX.dates(end)]);
+set(gca, 'xLim', [daxDates(2) daxDates(end)]);
 
 
 %%
@@ -1109,7 +1112,7 @@ set(gca, 'xLim', [DAX.dates(2) DAX.dates(end)]);
 
 % maximum likelihood estimation of parameters
 [coeff, errors, llf, innovations, sigmas, summary] = ...
-    garchfit(DAX.logRet);
+    garchfit(daxLogRets);
 
 %%
 % Displaying the estimated coefficient structure allows
@@ -1139,14 +1142,14 @@ logLikelihoods = [-nllhVal llf]
 close
 figure('position', [50 50 1200 600])
 subplot(2, 1, 1)
-plot(DAX.dates(2:end), DAX.logRet)
+plot(daxDates(2:end), daxLogRets)
 datetick 'x'
-set(gca, 'xLim', [DAX.dates(2) DAX.dates(end)]);
+set(gca, 'xLim', [daxDates(2) daxDates(end)]);
 
 subplot(2, 1, 2)
-plot(DAX.dates(2:end), sigmas)
+plot(daxDates(2:end), sigmas)
 datetick 'x'
-set(gca, 'xLim', [DAX.dates(2) DAX.dates(end)]);
+set(gca, 'xLim', [daxDates(2) daxDates(end)]);
 
 %%
 % Furthermore, it is easy to derive the standardized returns,
@@ -1158,7 +1161,7 @@ set(gca, 'xLim', [DAX.dates(2) DAX.dates(end)]);
 
 % init params
 nBins = 30;
-n = numel(DAX.logRet);     % number of observations
+n = numel(daxLogRets);     % number of observations
 
 % get standardized returns
 stdRets = innovations./sigmas;
@@ -1184,9 +1187,9 @@ title('relative frequency normal distribution')
 % procedure.
 
 % preallocate VaR vector
-vars = zeros(numel(quants), numel(DAX.logRet));
+vars = zeros(numel(quants), numel(daxLogRets));
 
-for ii=1:numel(DAX.logRet)
+for ii=1:numel(daxLogRets)
     % get sigma value
     curr_sigma = sigmas(ii);
     vars(:, ii) = norminv(quants', coeff.C, curr_sigma);
@@ -1194,25 +1197,25 @@ end
 
 for ii=1:numel(quants)
     % get exceedances
-    exceeds = (DAX.logRet' <= vars(ii, :));
+    exceeds = (daxLogRets' <= vars(ii, :));
     
     % include in figure
     figure('position', [50 50 1200 600])
-    plot(DAX.dates([logical(0) ~exceeds]), ...
-        DAX.logRet(~exceeds), '.')
+    plot(daxDates([logical(0) ~exceeds]), ...
+        daxLogRets(~exceeds), '.')
     hold on;
-    plot(DAX.dates([logical(0) exceeds]), ...
-        DAX.logRet(exceeds), '.r', 'MarkerSize', 12)
+    plot(daxDates([logical(0) exceeds]), ...
+        daxLogRets(exceeds), '.r', 'MarkerSize', 12)
     datetick 'x'
-    set(gca, 'xLim', [DAX.dates(2) DAX.dates(end)], ...
-        'yLim', [floor(min(DAX.logRet))-1 0]);
+    set(gca, 'xLim', [daxDates(2) daxDates(end)], ...
+        'yLim', [floor(min(daxLogRets))-1 0]);
 
     % include line for VaR estimations
     hold on;
-    plot(DAX.dates(2:end), vars(ii, :), '-k')
+    plot(daxDates(2:end), vars(ii, :), '-k')
 
     % calculate exceedance frequency
-    frequ = sum(exceeds)/numel(DAX.logRet);
+    frequ = sum(exceeds)/numel(daxLogRets);
     
     title(['Exceedance frequency: ' num2str(frequ, 3)...
         ' instead of ' num2str(quants(ii), 3)])
