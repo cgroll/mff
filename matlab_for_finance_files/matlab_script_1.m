@@ -478,7 +478,6 @@ help elmat
 % to simply type some keywords into Google's search engine.
 
 %% Try yourself
-
 % You should now try yourself at the "Matlab basics - practice" part in
 % Matlab Coursework.
 

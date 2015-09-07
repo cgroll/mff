@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Introduction to MATLAB</title><meta name="generator" content="MATLAB 8.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-08-19"><meta name="DC.source" content="matlab_script_1.m"><style type="text/css">
+      --><title>Introduction to MATLAB</title><meta name="generator" content="MATLAB 8.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-09-07"><meta name="DC.source" content="matlab_script_1.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -23,7 +23,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -38,11 +38,12 @@ ol li ul li { list-style:square; }
 
 .content { font-size:1.2em; line-height:140%; padding: 20px; }
 
-pre, tt, code { font-size:12px; }
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
 pre { margin:0px 0px 20px; }
-pre.error { color:red; }
 pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
 pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
 
 @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 
@@ -65,7 +66,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>Introduction to MATLAB</h1><!--introduction--><p>Christian Groll</p><p>Chair of financial econometrics, Ludwig-Maximilians-University Munich.</p><p>All rights reserved.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Numeric variables</a></li><li><a href="#17">Matrix Concatenation</a></li><li><a href="#25">Matrix calculation</a></li><li><a href="#30">Graphical output</a></li><li><a href="#32">Functions</a></li><li><a href="#40">For-loops and linearization</a></li><li><a href="#55">String variables</a></li><li><a href="#58">Cell variables</a></li><li><a href="#60">Structure variables</a></li></ul></div><p>The following script presents an introduction to basic MATLAB commands. It shows how different types of variables can be handled and manipulated in MATLAB, as well as how MATLAB can be used to produce graphical output.</p><h2>Numeric variables<a name="2"></a></h2><p>In MATLAB, an assignment of a certain value to a variable has to be implemented with an equality sign, where any expression on the right-hand side of the equality is assigned to the variable which is specified on the left-hand side. Variable names in MATLAB have to start with a letter, which can be followed by any number of letters, digits or underscores. Note that MATLAB is case sensitive, i.e. that lowercase and uppercase letters are distinguished.</p><pre class="codeinput"><span class="comment">% assign value 2 to a variable named x</span>
+  </style></head><body><div class="content"><h1>Introduction to MATLAB</h1><!--introduction--><p>Christian Groll</p><p>Chair of Financial Econometrics, Ludwig-Maximilians-University Munich.</p><p>All rights reserved.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Numeric variables</a></li><li><a href="#17">Matrix Concatenation</a></li><li><a href="#25">Matrix calculation</a></li><li><a href="#30">Graphical output</a></li><li><a href="#32">Functions</a></li><li><a href="#40">Try yourself</a></li><li><a href="#41">For-loops and linearization</a></li><li><a href="#56">String variables</a></li><li><a href="#59">Cell variables</a></li><li><a href="#61">Structure variables</a></li><li><a href="#64">Tables</a></li><li><a href="#65">Tables: logical indexing</a></li><li><a href="#66">mathematical functions</a></li></ul></div><p>The following script presents an introduction to basic MATLAB commands. It shows how different types of variables can be handled and manipulated in MATLAB, as well as how MATLAB can be used to produce graphical output.</p><h2>Numeric variables<a name="2"></a></h2><p>In MATLAB, an assignment of a certain value to a variable has to be implemented with an equality sign, where any expression on the right-hand side of the equality is assigned to the variable which is specified on the left-hand side. Variable names in MATLAB have to start with a letter, which can be followed by any number of letters, digits or underscores. Note that MATLAB is case sensitive, i.e. that lowercase and uppercase letters are distinguished.</p><pre class="codeinput"><span class="comment">% assign value 2 to a variable named x</span>
 x = 2
 </pre><pre class="codeoutput">
 x =
@@ -161,7 +162,6 @@ x =
 </pre><pre class="codeoutput">
 ans =
 
-Error using vertcat
 Dimensions of matrices being concatenated are not consistent.
 
 </pre><p>Once a variable has been initialized through value assignments, there are several ways to find out all its values or the value at any entry. The first way is to display the variable to the command window by simply typing its name. However, when dealing with large matrices, it is not convenient to let MATLAB display the complete matrix. A preferable way is to let MATLAB display only the entry required, which can be done by telling MATLAB the variable name associated with an index in square brackets.</p><pre class="codeinput"><span class="comment">% get value at row 1, column 2</span>
@@ -219,8 +219,8 @@ zeroMatr =
 
 unifMatr =
 
-    0.1419    0.9157    0.9595
-    0.4218    0.7922    0.6557
+    0.6797    0.1626    0.4984
+    0.6551    0.1190    0.9597
 
 </pre><p>In addition, MATLAB has an operator to create numerical sequences with constant increments. This operator is called with three numbers and two colons.</p><pre class="codeinput"><span class="comment">% increments of size 2, starting at 1, ending at 11</span>
 1:2:11
@@ -352,7 +352,7 @@ matrProd2 =
 
 </pre><p>Matrix division is defined as inversion to matrix multiplication on square matrices.</p><pre class="codeinput">matrProd = x*c
 
-<span class="comment">% retrieve C by reversion</span>
+<span class="comment">% retrieve x by reversion</span>
 matrProd/c
 x
 
@@ -491,6 +491,9 @@ dmperm                         - Dulmage-Mendelsohn permutation.
 symamd                         - Symmetric approximate minimum degree permutation.
 symrcm                         - Symmetric reverse Cuthill-McKee permutation.
 perms                          - All possible permutations.
+create_permutations            - Creates a population of permutations.
+crossover_permutation          - Custom crossover function for traveling salesman.
+mutate_permutation             - Custom mutation function for traveling salesman.
 </pre><p>Another way would be to let MATLAB display all functions in a given category. For example, request all elementary matrices and matrix manipulation:</p><pre class="codeinput">help <span class="string">elmat</span>
 </pre><pre class="codeoutput">  Elementary matrices and matrix manipulation.
  
@@ -525,7 +528,7 @@ perms                          - All possible permutations.
     triu        - Extract upper triangular part.
     fliplr      - Flip matrix in left/right direction.
     flipud      - Flip matrix in up/down direction.
-    flipdim     - Flip matrix along specified dimension.
+    flip        - Flip the order of elements.
     rot90       - Rotate matrix 90 degrees.
     :           - Regularly spaced vector and index into matrix.
     find        - Find indices of nonzero elements.
@@ -564,6 +567,8 @@ perms                          - All possible permutations.
     isinf       - True for infinite elements.
     isfinite    - True for finite elements.
     j           - Imaginary unit.
+    true        - True array.
+    false       - False array.
  
   Specialized matrices.
     compan      - Companion matrix.
@@ -580,7 +585,7 @@ perms                          - All possible permutations.
     vander      - Vandermonde matrix.
     wilkinson   - Wilkinson's eigenvalue test matrix.
 
-</pre><p>Other category names would be "specfun" for special functions and "elfun" for elementary functions. Of course, an additional and usually worthwhile option would be to simply type some keywords into Google's search engine.</p><h2>For-loops and linearization<a name="40"></a></h2><p>Now we want to plot the density function of a normal distribution. The formular for the density function is given by f(x)=(2*pi*sigma)^(-0.5)*exp(-0.5*((x-mu)^2/sigma)). In the course of this application we also introduce the syntax for loops in MATLAB, and show their performance with a different approach using simple matrix calculations. A loop executes a series of commands for a pre-specified number of iterations. However, any loop usually needs a running variable that changes at each iteration. For example, if you want to store the results of your code inside the loop, you would have to adapt the index of your storing variable, in order to not overwrite your results. The syntax of loops is rather simple. Just type "for" to indicate the beginning of a loop, choose a running variable and specify a vector of values which will be taken by the running variable.</p><pre class="codeinput"><span class="comment">% init params</span>
+</pre><p>Other category names would be "specfun" for special functions and "elfun" for elementary functions. Of course, an additional and usually worthwhile option would be to simply type some keywords into Google's search engine.</p><h2>Try yourself<a name="40"></a></h2><p>You should now try yourself at the "Matlab basics - practice" part in Matlab Coursework.</p><h2>For-loops and linearization<a name="41"></a></h2><p>Now we want to plot the density function of a normal distribution. The formular for the density function is given by f(x)=(2*pi*sigma)^(-0.5)*exp(-0.5*((x-mu)^2/sigma)). In the course of this application we also introduce the syntax for loops in MATLAB, and show their performance with a different approach using simple matrix calculations. A loop executes a series of commands for a pre-specified number of iterations. However, any loop usually needs a running variable that changes at each iteration. For example, if you want to store the results of your code inside the loop, you would have to adapt the index of your storing variable, in order to not overwrite your results. The syntax of loops is rather simple. Just type "for" to indicate the beginning of a loop, choose a running variable and specify a vector of values which will be taken by the running variable.</p><pre class="codeinput"><span class="comment">% init params</span>
 mu = 2;
 sigma = 1.4;
 grid = -2:0.01:6;
@@ -610,7 +615,7 @@ fprintf(<span class="string">'\nSecond code is faster with factor %3.3f\n'</span
     <span class="comment">% \n stands for change to new line</span>
     <span class="comment">% %3.3f is the format for the ouput of the variable inserted</span>
 </pre><pre class="codeoutput">
-Second code is faster with factor 92.927
+Second code is faster with factor 106.986
 </pre><img vspace="5" hspace="5" src="matlab_script_1_04.png" alt=""> <p>Of course, such an important function is already implemented in MATLAB. Hence, the same results also can be obtained by</p><pre class="codeinput"><span class="comment">% y = normpdf(grid,mu,sigma);</span>
 </pre><p>In order to further highlight the importance of preallocation, we will try a second example.</p><pre class="codeinput">tic
 N = 10e3;
@@ -631,7 +636,7 @@ time2 = toc;
 
 fprintf(<span class="string">'\nPart one takes %2.3d times longer.\n'</span>,time1/time2)
 </pre><pre class="codeoutput">
-Part one takes 1.078e+00 times longer.
+Part one takes 9.567e-01 times longer.
 </pre><p>The same performance improvements also apply to the case of a two-dimensional normal distribution. However, we first introduce two further helpful operators in MATLAB. The first is the transpose operator, which forms the complex conjugate transpose of a matrix, i.e. it simply transposes matrices without complex part.</p><pre class="codeinput"><span class="comment">% init random matrix</span>
 x = rand(3)
 
@@ -640,16 +645,16 @@ transp = x'
 </pre><pre class="codeoutput">
 x =
 
-    0.0357    0.6787    0.3922
-    0.8491    0.7577    0.6555
-    0.9340    0.7431    0.1712
+    0.3404    0.7513    0.6991
+    0.5853    0.2551    0.8909
+    0.2238    0.5060    0.9593
 
 
 transp =
 
-    0.0357    0.8491    0.9340
-    0.6787    0.7577    0.7431
-    0.3922    0.6555    0.1712
+    0.3404    0.5853    0.2238
+    0.7513    0.2551    0.5060
+    0.6991    0.8909    0.9593
 
 </pre><p>The second operator is the vectorization operator. Applied to a matrix, it takes each column and attaches it at the bottom of the previous columns to get one large vector containing all entries of matrix a.</p><pre class="codeinput"><span class="comment">% vectorization, with subsequent transposition to keep displayed</span>
 <span class="comment">% output space-saving</span>
@@ -659,11 +664,11 @@ ans =
 
   Columns 1 through 7
 
-    0.0357    0.8491    0.9340    0.6787    0.7577    0.7431    0.3922
+    0.3404    0.5853    0.2238    0.7513    0.2551    0.5060    0.6991
 
   Columns 8 through 9
 
-    0.6555    0.1712
+    0.8909    0.9593
 
 </pre><p>These operations will prove useful in the performance-improved encoding of the two-dimensional density. But first we will implement the more easy way using for loops.</p><pre class="codeinput"><span class="comment">% init params</span>
 mu = [4; 0];    <span class="comment">% vector containing both mean values</span>
@@ -799,7 +804,7 @@ fprintf(<span class="string">'\nSecond code is faster with factor %3.3f\n'</span
     <span class="comment">% \n stands for change to new line</span>
     <span class="comment">% %3.3f is the format for the ouput of the variable inserted</span>
 </pre><pre class="codeoutput">
-Second code is faster with factor 411.510
+Second code is faster with factor 303.539
 </pre><p>check for deviations of previous results</p><pre class="codeinput">deviations = [max(max(xGrid-xGrid2)),<span class="keyword">...</span>
               max(max(yGrid-yGrid2)),<span class="keyword">...</span>
               max(max(z-z2))]
@@ -824,7 +829,7 @@ title(<span class="string">'bivariate normal density'</span>)
 
 <span class="comment">% fit axes to grid points evaluated</span>
 set(gca,<span class="string">'xLim'</span>,[grid(1) grid(end)],<span class="string">'yLim'</span>,[grid(1) grid(end)])
-</pre><img vspace="5" hspace="5" src="matlab_script_1_05.png" alt=""> <h2>String variables<a name="55"></a></h2><p>String variables represent series of characters. In order to assign a string to a variable, the expression has to be enclosed with apostrophes. This way, MATLAB automatically defines the variable's type as string.</p><pre class="codeinput">s = <span class="string">'This is a string!'</span>
+</pre><img vspace="5" hspace="5" src="matlab_script_1_05.png" alt=""> <h2>String variables<a name="56"></a></h2><p>String variables represent series of characters. In order to assign a string to a variable, the expression has to be enclosed with apostrophes. This way, MATLAB automatically defines the variable's type as string.</p><pre class="codeinput">s = <span class="string">'This is a string!'</span>
 </pre><pre class="codeoutput">
 s =
 
@@ -845,10 +850,9 @@ cba
 </pre><pre class="codeoutput">
 ans =
 
-Error using vertcat
 Dimensions of matrices being concatenated are not consistent.
 
-</pre><h2>Cell variables<a name="58"></a></h2><p>Cell arrays are used when variables of different types shall be stored in a single variable. For example, an entry in a cell array can contain a numeric value as well as a matrix with numeric entries. Furthermore, it can also obtain a string (an array of characters) or a structure variable. In contrast to the variable types so far, cell arrays are initialized using curled brackets!</p><pre class="codeinput">c = {<span class="string">'abe'</span>,<span class="string">'kdkdkd'</span>}
+</pre><h2>Cell variables<a name="59"></a></h2><p>Cell arrays are used when variables of different types shall be stored in a single variable. For example, an entry in a cell array can contain a numeric value as well as a matrix with numeric entries. Furthermore, it can also obtain a string (an array of characters) or a structure variable. In contrast to the variable types so far, cell arrays are initialized using curled brackets!</p><pre class="codeinput">c = {<span class="string">'abe'</span>,<span class="string">'kdkdkd'</span>}
 
 c{2,1} = 4535
 
@@ -871,7 +875,7 @@ c =
     'abe'     'kdkdkd'    
     [4535]    [3x3 double]
 
-</pre><p>Imagine, you wanted to store historic stock prices in a cell array. Hence, you could fill one entry with a string variable containing the name of the stock, one entry with a matrix of numeric values containing the closing prices and one entry with a matrix containing associated dates. One problem when working with cell arrays is, that you always have to keep track about the arrangement of the different variables in the cell array yourself! This way, your code becomes more error prone, since you could accidentially mix up the entries, and overwrite the stock prices, while you only wanted to change the name of the stock. In order to improve the code with respect to this danger of confusions, MATLAB has come up with a way to store different data types, where the individual entries are not indexed with numbers, but with field names. Such variables are called structure variables.</p><h2>Structure variables<a name="60"></a></h2><p>When using structure variables, individual fields are addressed by simple name extensions to the name of the variable. Consider a structure variabe stock1 containing stock information.</p><pre class="codeinput">stock1.name = <span class="string">'BMW'</span>;
+</pre><p>Imagine, you wanted to store historic stock prices in a cell array. Hence, you could fill one entry with a string variable containing the name of the stock, one entry with a matrix of numeric values containing the closing prices and one entry with a matrix containing associated dates. One problem when working with cell arrays is, that you always have to keep track about the arrangement of the different variables in the cell array yourself! This way, your code becomes more error prone, since you could accidentially mix up the entries, and overwrite the stock prices, while you only wanted to change the name of the stock. In order to improve the code with respect to this danger of confusions, MATLAB has come up with a way to store different data types, where the individual entries are not indexed with numbers, but with field names. Such variables are called structure variables.</p><h2>Structure variables<a name="61"></a></h2><p>When using structure variables, individual fields are addressed by simple name extensions to the name of the variable. Consider a structure variabe stock1 containing stock information.</p><pre class="codeinput">stock1.name = <span class="string">'BMW'</span>;
 
 stock1.dates = [<span class="string">'01.02.2001'</span>;<span class="string">'02.02.2001'</span>;<span class="string">'03.02.2001'</span>];
 
@@ -901,12 +905,141 @@ dates =
 02.02.2001
 03.02.2001
 
-</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2013b</a><br></p></div><!--
+</pre><h2>Tables<a name="64"></a></h2><p>Since version R2013b Matlab also has a data structure similar to DataFrames in R. These tables allow to store data of mixed types, the only restriction being that all columns need to be of equal length. For the advantages of tables take a look at the online documentation at <a href="http://www.mathworks.de/de/help/matlab/matlab_prog/advantages-of-using-tables.html">http://www.mathworks.de/de/help/matlab/matlab_prog/advantages-of-using-tables.html</a></p><pre class="codeinput">load <span class="string">patients</span>
+
+patientTable = table(Gender,Age,Smoker,Diastolic);
+
+<span class="comment">% get subset of data as table</span>
+subTable = patientTable(:, 1:2);
+
+<span class="comment">% get subset of data as matrix</span>
+valuesThemself = patientTable{:, 2:4};
+
+<span class="comment">% get invalid subset of data</span>
+<span class="keyword">try</span>
+    invalidData = patientTable{:, 1:2}
+<span class="keyword">catch</span> err
+    err.message
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">
+ans =
+
+Cannot concatenate the table variables 'Age' and 'Gender', because their types are double and cell.
+
+</pre><h2>Tables: logical indexing<a name="65"></a></h2><p>still to come</p><h2>mathematical functions<a name="66"></a></h2><p>could corrupt logical data: all patients become smokers</p><pre class="codeinput">patientTable{:, 2:4} = patientTable{:, 2:4} + 3000
+</pre><pre class="codeoutput">
+patientTable = 
+
+     Gender     Age     Smoker    Diastolic
+    ________    ____    ______    _________
+
+    'Male'      3038    true      3093     
+    'Male'      3043    true      3077     
+    'Female'    3038    true      3083     
+    'Female'    3040    true      3075     
+    'Female'    3049    true      3080     
+    'Female'    3046    true      3070     
+    'Female'    3033    true      3088     
+    'Male'      3040    true      3082     
+    'Male'      3028    true      3078     
+    'Female'    3031    true      3086     
+    'Female'    3045    true      3077     
+    'Female'    3042    true      3068     
+    'Male'      3025    true      3074     
+    'Male'      3039    true      3095     
+    'Female'    3036    true      3079     
+    'Male'      3048    true      3092     
+    'Male'      3032    true      3095     
+    'Female'    3027    true      3079     
+    'Male'      3037    true      3077     
+    'Male'      3050    true      3076     
+    'Female'    3048    true      3075     
+    'Female'    3039    true      3079     
+    'Female'    3041    true      3088     
+    'Female'    3044    true      3090     
+    'Female'    3028    true      3096     
+    'Male'      3025    true      3077     
+    'Female'    3039    true      3080     
+    'Female'    3025    true      3076     
+    'Male'      3036    true      3083     
+    'Male'      3030    true      3089     
+    'Female'    3045    true      3092     
+    'Female'    3040    true      3083     
+    'Female'    3025    true      3080     
+    'Male'      3047    true      3084     
+    'Male'      3044    true      3092     
+    'Female'    3048    true      3083     
+    'Male'      3044    true      3090     
+    'Female'    3035    true      3085     
+    'Male'      3033    true      3090     
+    'Female'    3038    true      3074     
+    'Male'      3039    true      3092     
+    'Male'      3044    true      3080     
+    'Male'      3044    true      3089     
+    'Male'      3037    true      3096     
+    'Male'      3045    true      3089     
+    'Female'    3037    true      3077     
+    'Male'      3030    true      3081     
+    'Female'    3039    true      3076     
+    'Male'      3042    true      3083     
+    'Male'      3042    true      3078     
+    'Male'      3049    true      3095     
+    'Female'    3044    true      3091     
+    'Female'    3043    true      3091     
+    'Female'    3047    true      3086     
+    'Male'      3050    true      3089     
+    'Female'    3038    true      3079     
+    'Female'    3041    true      3074     
+    'Male'      3045    true      3082     
+    'Male'      3036    true      3076     
+    'Female'    3038    true      3081     
+    'Female'    3029    true      3077     
+    'Female'    3028    true      3073     
+    'Female'    3030    true      3085     
+    'Female'    3028    true      3076     
+    'Female'    3029    true      3080     
+    'Male'      3036    true      3080     
+    'Female'    3045    true      3079     
+    'Female'    3032    true      3082     
+    'Female'    3031    true      3079     
+    'Female'    3048    true      3082     
+    'Male'      3025    true      3075     
+    'Female'    3040    true      3091     
+    'Male'      3039    true      3074     
+    'Female'    3041    true      3078     
+    'Female'    3033    true      3085     
+    'Male'      3031    true      3084     
+    'Female'    3035    true      3075     
+    'Male'      3032    true      3078     
+    'Male'      3042    true      3081     
+    'Female'    3048    true      3079     
+    'Male'      3034    true      3085     
+    'Male'      3039    true      3079     
+    'Male'      3028    true      3082     
+    'Female'    3029    true      3080     
+    'Female'    3032    true      3080     
+    'Male'      3039    true      3092     
+    'Female'    3037    true      3092     
+    'Female'    3049    true      3096     
+    'Female'    3031    true      3087     
+    'Female'    3037    true      3081     
+    'Male'      3038    true      3090     
+    'Male'      3045    true      3077     
+    'Female'    3030    true      3091     
+    'Male'      3048    true      3079     
+    'Female'    3048    true      3073     
+    'Male'      3025    true      3099     
+    'Male'      3044    true      3092     
+    'Male'      3049    true      3074     
+    'Male'      3045    true      3093     
+    'Male'      3048    true      3086     
+
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% Introduction to MATLAB
 % Christian Groll
 %
-% Chair of financial econometrics, Ludwig-Maximilians-University 
+% Chair of Financial Econometrics, Ludwig-Maximilians-University 
 % Munich. 
 %
 % All rights reserved.
@@ -1209,7 +1342,7 @@ matrProd2 = [c(1,1)*b(1)+c(1,2)*b(2); c(2,1)*b(1)+c(2,2)*b(2)]
 % multiplication on square matrices.
 matrProd = x*c
 
-% retrieve C by reversion
+% retrieve x by reversion
 matrProd/c
 x
 
@@ -1381,6 +1514,10 @@ help elmat
 % and "elfun" for elementary functions.
 % Of course, an additional and usually worthwhile option would be
 % to simply type some keywords into Google's search engine.
+
+%% Try yourself
+% You should now try yourself at the "Matlab basics - practice" part in
+% Matlab Coursework.
 
 %% For-loops and linearization
 % Now we want to plot the density function of a normal 
@@ -1748,7 +1885,36 @@ stock1.dates
 
 dates = stock1.dates
 
+%% Tables
+% Since version R2013b Matlab also has a data structure similar to
+% DataFrames in R. These tables allow to store data of mixed types, the
+% only restriction being that all columns need to be of equal length.
+% For the advantages of tables take a look at the online documentation at
+% http://www.mathworks.de/de/help/matlab/matlab_prog/advantages-of-using-tables.html 
 
+load patients
+
+patientTable = table(Gender,Age,Smoker,Diastolic);
+
+% get subset of data as table
+subTable = patientTable(:, 1:2);
+
+% get subset of data as matrix
+valuesThemself = patientTable{:, 2:4};
+
+% get invalid subset of data
+try
+    invalidData = patientTable{:, 1:2}
+catch err
+    err.message
+end
+
+%% Tables: logical indexing
+% still to come
+
+%% mathematical functions
+% could corrupt logical data: all patients become smokers
+patientTable{:, 2:4} = patientTable{:, 2:4} + 3000
 
 
 
