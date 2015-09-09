@@ -275,7 +275,7 @@ c = [c; x(end,:)]
 % vertical line via the colon operator, and assign an empty
 % matrix to it.
 
-% delete third row
+% delete third column
 c(:,3) = []
 
 %% Matrix calculation
