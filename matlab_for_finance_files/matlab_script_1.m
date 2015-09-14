@@ -304,7 +304,7 @@ matrProd2 = [c(1,1)*b(1)+c(1,2)*b(2); c(2,1)*b(1)+c(2,2)*b(2)]
 % multiplication on square matrices.
 matrProd = x*c
 
-% retrieve C by reversion
+% retrieve x by reversion
 matrProd/c
 x
 
@@ -476,6 +476,10 @@ help elmat
 % and "elfun" for elementary functions.
 % Of course, an additional and usually worthwhile option would be
 % to simply type some keywords into Google's search engine.
+
+%% Try yourself
+% You should now try yourself at the "Matlab basics - practice" part in
+% Matlab Coursework.
 
 %% For-loops and linearization
 % Now we want to plot the density function of a normal 
