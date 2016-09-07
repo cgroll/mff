@@ -13,7 +13,7 @@ nTables = length(cellOfTables);
 joinedTable = cellOfTables{1, 1};
 for ii=2:nTables
     joinedTable = outerjoin(joinedTable, cellOfTables{1, ii},...
-        'MergeKeys',true);
+        'MergeKeys', true, 'Keys', {'Date'}, 'Type', 'full');
 end
 
 end

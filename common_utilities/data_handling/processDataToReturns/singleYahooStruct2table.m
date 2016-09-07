@@ -14,6 +14,6 @@ varname = createValidName(yahooStruct.Ticker);
 
 t = table(yahooStruct.Date, ...
     yahooStruct.AdjClose,...
-    'VariableNames', {'Dates', varname});
+    'VariableNames', {'Date', varname});
 
 end

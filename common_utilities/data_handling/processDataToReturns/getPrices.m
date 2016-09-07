@@ -22,12 +22,11 @@ end
 % call joinStockPriceSeries
 joinedTable = joinStockPriceSeries(stockStructure);
 
-joinedTableSorted = sortrows(joinedTable, 1);
+% get dates in numerical format
+joinedTable.Date = datenum(joinedTable.Date, 'yyyy-mm-dd');
 
-% get dates as row names
-dats = joinedTableSorted{:, 1};
-joinedTableSorted(:, 1) = [];
-joinedTableSorted.Properties.RowNames = dats;
+% sort with regards to dates
+joinedTableSorted = sortrows(joinedTable, 'Date');
 
 end
 
